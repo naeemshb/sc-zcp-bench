@@ -165,16 +165,17 @@ def run_sweep(space, count, lo, hi, device, data_root, seed):
         )
 
 
-def run_pilot(device, data_root):
-    """10 archs per space, full frozen recipe. Gate (section 3): wall-clock
-    <= 5 min/model on the slower machine, spread >= 15 points over the 20
-    models, no divergence. Also checks params-accuracy correlation headroom."""
+def run_pilot(device, data_root, n_per_space: int = 20):
+    """Pilot archs per space, full frozen recipe. Gate (section 3): wall-clock
+    <= 5 min/model, spread >= 15 points, no divergence. Also checks
+    params-accuracy correlation headroom (n raised 10->20/space for a usable
+    Spearman estimate; +-0.15 CI at n=20 was too wide to gate on)."""
     data = {name: load_split(data_root, name) for name in ["train", "val", "test"]}
     results = []
     for space in ["A", "B"]:
         out_dir = os.path.join(RESULTS_DIR, "pilot")
         os.makedirs(out_dir, exist_ok=True)
-        for i, cfg in enumerate(spaces.sample_archs(space, 10)):
+        for i, cfg in enumerate(spaces.sample_archs(space, n_per_space)):
             aid = spaces.arch_id(cfg)
             out_path = os.path.join(out_dir, f"{space}_{aid}.json")
             if os.path.exists(out_path):
@@ -189,17 +190,31 @@ def run_pilot(device, data_root):
                 f"pilot {space}[{i}] {aid} test={res['test_acc']:.4f} "
                 f"{res['wall_clock_s']:.0f}s"
             )
+    import scipy.stats as st
+
     accs = [r["test_acc"] for r in results]
     times = [r["wall_clock_s"] for r in results]
     spread = (max(accs) - min(accs)) * 100
-    import scipy.stats as st
-
     rho_params = st.spearmanr(accs, [r["params"] for r in results]).statistic
     print("\n=== PILOT GATE ===")
     print(f"models: {len(results)}  max wall-clock: {max(times):.0f}s (gate: <=300s)")
     print(f"accuracy spread: {spread:.1f} points (gate: >=15)")
     print(f"params-accuracy Spearman: {rho_params:.3f} (headroom check: want < ~0.8)")
     print(f"acc range: [{min(accs):.4f}, {max(accs):.4f}]")
+    func = [r for r in results if r["test_acc"] > 0.5]
+    if len(func) > 3:
+        fa = [r["test_acc"] for r in func]
+        print(
+            f"functional-only (acc>0.5, n={len(func)}): spread "
+            f"{(max(fa) - min(fa)) * 100:.1f} pts, params rho "
+            f"{st.spearmanr(fa, [r['params'] for r in func]).statistic:.3f}"
+        )
+    for space in ["A", "B"]:
+        sp = [r for r in results if r["config"]["space"] == space]
+        rho = st.spearmanr(
+            [r["test_acc"] for r in sp], [r["params"] for r in sp]
+        ).statistic
+        print(f"within-{space} (n={len(sp)}): params rho {rho:.3f}")
 
 
 def main():

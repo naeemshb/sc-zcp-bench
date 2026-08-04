@@ -195,17 +195,35 @@ def arch_id(cfg: dict) -> str:
     return hashlib.sha1(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:10]
 
 
+# grammar-v2.1: per-model compute cap. The uncapped grammar produced a 112M-MAC
+# outlier that alone breached the pilot wall-clock gate (313s); capping bounds
+# the sweep's worst case at ~1-2 min/model without narrowing the quality knobs.
+FLOPS_CAP = 60e6
+
+
+def _model_flops(cfg: dict) -> float:
+    from .proxies import flops_count  # local import; proxies does not import spaces
+
+    dummy = torch.zeros(1, 1, N_MELS, N_FRAMES)
+    return flops_count(build_model(cfg), dummy)
+
+
 def sample_archs(space: str, n: int, master_seed: int = MASTER_SEED) -> list[dict]:
-    """Deterministic, deduplicated list of n configs. Identical on every machine."""
+    """Deterministic, deduplicated, FLOPs-capped list of n configs.
+
+    Identical on every machine (fixed rng stream + deterministic rejection)."""
     rng = random.Random(f"{space}-{master_seed}")
     sampler = sample_space_a if space == "A" else sample_space_b
     seen, out = set(), []
     while len(out) < n:
         cfg = sampler(rng)
         aid = arch_id(cfg)
-        if aid not in seen:
-            seen.add(aid)
-            out.append(cfg)
+        if aid in seen:
+            continue
+        seen.add(aid)
+        if _model_flops(cfg) > FLOPS_CAP:
+            continue
+        out.append(cfg)
     return out
 
 
