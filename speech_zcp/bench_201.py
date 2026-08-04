@@ -119,6 +119,32 @@ def build_nb201(arch: str, init_seed: int = 0) -> nn.Module:
     return NB201Net(arch)
 
 
+# NASLib zerocost-branch representation: arch key is a stringified tuple of six
+# op indices over EDGE_LIST ((1,2),(1,3),(1,4),(2,3),(2,4),(3,4)); index order:
+OP_INDEX_TO_NAME = ["skip_connect", "none", "nor_conv_3x3", "nor_conv_1x1", "avg_pool_3x3"]
+
+
+def op_indices_key_to_arch_str(key: str) -> str:
+    """'(4, 0, 3, 1, 4, 3)' -> canonical NB201 arch string."""
+    t = [OP_INDEX_TO_NAME[int(v)] for v in key.strip("()").split(",")]
+    return f"|{t[0]}~0|+|{t[1]}~0|{t[3]}~1|+|{t[2]}~0|{t[4]}~1|{t[5]}~2|"
+
+
+def fixed_cifar_batch(root: str = "data", batch_size: int = 64):
+    """Deterministic CIFAR-10 train minibatch (seed 0), NASLib-style normalization."""
+    import torchvision
+    import torchvision.transforms as T
+
+    tf = T.Compose(
+        [T.ToTensor(), T.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))]
+    )
+    ds = torchvision.datasets.CIFAR10(root, train=True, download=True, transform=tf)
+    g = torch.Generator().manual_seed(0)
+    idx = torch.randperm(len(ds), generator=g)[:batch_size]
+    xs, ys = zip(*(ds[int(i)] for i in idx))
+    return torch.stack(xs), torch.tensor(ys)
+
+
 def download_instructions() -> str:
     return (
         "NB-Suite-Zero data (Krishnakumar et al., NeurIPS 2022):\n"
@@ -137,29 +163,26 @@ def run_gate(zc_json_path: str, n_sample: int = 500, seed: int = 0, dataset: str
         zc = json.load(f)
     if dataset in zc:
         zc = zc[dataset]
-    archs = sorted(zc.keys())
+    keys = sorted(zc.keys())
     rng = random.Random(seed)
-    sample = rng.sample(archs, min(n_sample, len(archs)))
-
-    g = torch.Generator().manual_seed(0)
-    inputs = torch.randn(8, 3, 32, 32, generator=g)  # placeholder: swap for a fixed CIFAR batch
-    targets = torch.randint(0, CIFAR_CLASSES, (8,), generator=g)
+    sample = rng.sample(keys, min(n_sample, len(keys)))
+    inputs, targets = fixed_cifar_batch()
 
     theirs = {p: [] for p in ALL_PROXIES}
     ours = {p: [] for p in ALL_PROXIES}
-    name_map = {"nwot": "nwot", "params": "params", "flops": "flops"}  # extend per json keys
-    for i, arch in enumerate(sample):
+    for i, key in enumerate(sample):
+        arch = op_indices_key_to_arch_str(key)
         for p in ALL_PROXIES:
-            key = name_map.get(p, p)
-            if key not in zc[arch]:
+            entry = zc[key].get(p)
+            if entry is None:
                 continue
-            score = zc[arch][key]["score"] if isinstance(zc[arch][key], dict) else zc[arch][key]
-            theirs[p].append(score)
+            theirs[p].append(entry["score"] if isinstance(entry, dict) else entry)
             ours[p].append(compute_proxy(p, lambda: build_nb201(arch), inputs, targets))
-        if (i + 1) % 50 == 0:
-            print(f"gate: {i + 1}/{len(sample)} archs")
+        if (i + 1) % 25 == 0:
+            print(f"gate: {i + 1}/{len(sample)} archs", flush=True)
 
     print("\n=== NB201 VALIDATION GATE ===")
+    results = {}
     for p in ALL_PROXIES:
         if not theirs[p]:
             print(f"{p:10s}  (not in NB-Suite-Zero json)")
@@ -167,7 +190,12 @@ def run_gate(zc_json_path: str, n_sample: int = 500, seed: int = 0, dataset: str
         rho = st.spearmanr(theirs[p], ours[p]).statistic
         threshold = 0.99 if p in DATA_FREE else 0.90
         status = "PASS" if rho >= threshold else "FAIL <-- implementation bug until proven otherwise"
+        results[p] = {"rho": rho, "threshold": threshold, "pass": rho >= threshold}
         print(f"{p:10s}  rho={rho:.4f}  (gate {threshold})  {status}")
+    out = os.path.join(os.path.dirname(__file__), "results", "nb201_gate.json")
+    with open(out, "w") as f:
+        json.dump({"n_sample": len(sample), "seed": seed, "dataset": dataset, "results": results}, f, indent=1)
+    print(f"saved -> {out}")
 
 
 if __name__ == "__main__":
