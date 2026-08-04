@@ -132,8 +132,11 @@ def fisher(model, inputs, targets) -> float:
     acts = []
 
     def hook(mod, inp, out):
-        out.retain_grad()
-        acts.append(out)
+        # constant-input branches (e.g. NB201 nodes fed only by 'none' ops)
+        # produce grad-free activations; they contribute zero fisher signal
+        if out.requires_grad:
+            out.retain_grad()
+            acts.append(out)
 
     handles = [m.register_forward_hook(hook) for m in model.modules() if isinstance(m, nn.ReLU)]
     loss = F.cross_entropy(model(inputs), targets)
