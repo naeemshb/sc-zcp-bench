@@ -27,11 +27,18 @@ MASTER_SEED = 2027  # single source of truth for architecture lists
 # ---------------------------------------------------------------------------
 # Space A: DS-CNN
 # ---------------------------------------------------------------------------
-A_CHANNELS = [16, 24, 32, 48, 64, 96, 128, 172]
-A_KERNELS = [3, 5, 7]
+# grammar-v2 (2026-08-04): pilot on grammar-v1 gave only 8.1 points accuracy
+# spread (gate: >=15). Widened with QUALITY-degrading knobs at similar size
+# (kernel 1 = spatially blind depthwise; more stride-2 blocks and strided
+# stems = temporal collapse; 1-block nets) plus modest width extension down
+# to 8 channels. Deliberately avoids relying on tiny-params cripples alone:
+# params-accuracy Spearman was already 0.732 and must stay < ~0.8.
+A_CHANNELS = [8, 16, 24, 32, 48, 64, 96, 128, 172]
+A_KERNELS = [1, 3, 5, 7]
 A_POOLS = ["avg", "max"]
-A_BLOCK_RANGE = (2, 6)
-A_MAX_STRIDE2_BLOCKS = 2  # stride-2 blocks allowed beyond the stem
+A_BLOCK_RANGE = (1, 6)
+A_MAX_STRIDE2_BLOCKS = 4  # stride-2 blocks allowed beyond the stem
+A_STEM_STRIDES = [[2, 2], [2, 1], [4, 2]]
 
 
 def sample_space_a(rng: random.Random) -> dict:
@@ -40,7 +47,8 @@ def sample_space_a(rng: random.Random) -> dict:
     stride2_at = set(rng.sample(range(n_blocks), n_s2))
     return {
         "space": "A",
-        "stem_channels": rng.choice(A_CHANNELS[:4]),
+        "stem_channels": rng.choice(A_CHANNELS[:5]),
+        "stem_stride": rng.choice(A_STEM_STRIDES),
         "blocks": [
             {
                 "channels": rng.choice(A_CHANNELS),
@@ -73,8 +81,9 @@ class DSCNN(nn.Module):
     def __init__(self, cfg: dict):
         super().__init__()
         c0 = cfg["stem_channels"]
+        stem_stride = tuple(cfg.get("stem_stride", (2, 2)))
         self.stem = nn.Sequential(
-            nn.Conv2d(1, c0, kernel_size=(10, 4), stride=(2, 2), padding=(4, 1), bias=False),
+            nn.Conv2d(1, c0, kernel_size=(10, 4), stride=stem_stride, padding=(4, 1), bias=False),
             nn.BatchNorm2d(c0),
             nn.ReLU(),
         )
@@ -98,9 +107,13 @@ class DSCNN(nn.Module):
 # ---------------------------------------------------------------------------
 # Space B: TC-ResNet
 # ---------------------------------------------------------------------------
-B_BLOCK_RANGE = (2, 6)
-B_WIDTHS = [0.5, 0.75, 1.0, 1.5, 2.0]
-B_KERNELS = [3, 5, 7, 9, 11, 13, 15]
+# grammar-v2 (2026-08-04): same spread-widening pass as Space A — kernel 1
+# (no temporal context), dilation 4 (receptive-field overshoot), free per-block
+# stride (up to full temporal collapse), 1-block nets, width 0.25.
+B_BLOCK_RANGE = (1, 6)
+B_WIDTHS = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
+B_KERNELS = [1, 3, 5, 7, 9, 11, 13, 15]
+B_DILATIONS = [1, 2, 4]
 B_BASE_CHANNELS = [24, 32, 48, 64, 96, 128]  # progression before width multiplier
 
 
@@ -112,9 +125,8 @@ def sample_space_b(rng: random.Random) -> dict:
         "blocks": [
             {
                 "kernel": rng.choice(B_KERNELS),
-                "dilation": rng.choice([1, 2]),
-                # deterministic downsampling pattern: stride 2 on even blocks
-                "stride": 2 if i % 2 == 0 else 1,
+                "dilation": rng.choice(B_DILATIONS),
+                "stride": rng.choice([1, 2]),
             }
             for i in range(n_blocks)
         ],
