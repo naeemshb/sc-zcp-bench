@@ -205,34 +205,35 @@ def nwot(model, inputs) -> float:
     return float(logabsdet) if sign > 0 else float("-inf")
 
 
-def zen(model, inputs, alpha: float = 0.01) -> float:
-    """Zen-score: feature-map sensitivity to input perturbation + BN batch-variance term."""
+def zen(model, inputs, mixup_gamma: float = 1e-2, seed: int = 0) -> float:
+    """Zen-score, mirroring NASLib zerocost measures/zen.py (Alibaba ZenNAS):
+    gaussian re-init, two random inputs, L1 delta of pre-GAP features,
+    plus sum over BN layers of log sqrt mean running_var (as updated by the
+    two train-mode forwards). Deterministically seeded (upstream does not seed)."""
     model.train()
-    bn_logvars = []
-
-    def bn_hook(mod, inp, out):
-        x = inp[0].detach()
-        dims = [0] + list(range(2, x.dim()))
-        var = x.var(dim=dims)
-        bn_logvars.append(float(torch.log(torch.sqrt(var.mean() + 1e-8))))
-
-    handles = [
-        m.register_forward_hook(bn_hook)
-        for m in model.modules()
-        if isinstance(m, (nn.BatchNorm1d, nn.BatchNorm2d))
-    ]
-    g = torch.Generator().manual_seed(0)
-    x1 = torch.randn(inputs.shape, generator=g)
-    x2 = x1 + alpha * torch.randn(inputs.shape, generator=g)
     with torch.no_grad():
+        for m in model.modules():
+            if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Linear)):
+                nn.init.normal_(m.weight)
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+            elif isinstance(m, (nn.BatchNorm1d, nn.BatchNorm2d, nn.GroupNorm)):
+                if m.weight is not None:
+                    nn.init.ones_(m.weight)
+                    nn.init.zeros_(m.bias)
+        g = torch.Generator().manual_seed(seed)
+        x1 = torch.randn(inputs.shape, generator=g)
+        x2 = x1 + mixup_gamma * torch.randn(inputs.shape, generator=g)
         f1 = model.forward_features(x1)
-        for h in handles:  # BN variance term collected on the first forward only
-            h.remove()
         f2 = model.forward_features(x2)
-    delta = float((f1 - f2).norm())
-    if delta <= 0:
+        score = torch.mean(torch.sum(torch.abs(f1 - f2), dim=list(range(1, f1.dim()))))
+        log_bn = 0.0
+        for m in model.modules():
+            if isinstance(m, (nn.BatchNorm1d, nn.BatchNorm2d)):
+                log_bn += float(torch.log(torch.sqrt(torch.mean(m.running_var))))
+    if float(score) <= 0:
         return float("-inf")
-    return math.log(delta) + sum(bn_logvars)
+    return float(torch.log(score)) + log_bn
 
 
 # ---------------------------------------------------------------------------

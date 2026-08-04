@@ -155,10 +155,12 @@ def download_instructions() -> str:
     )
 
 
-def run_gate(zc_json_path: str, n_sample: int = 500, seed: int = 0, dataset: str = "cifar10"):
+def run_gate(zc_json_path: str, n_sample: int = 500, seed: int = 0, dataset: str = "cifar10",
+             proxies: list[str] | None = None):
     """Spearman(our proxy, NB-Suite-Zero proxy) per proxy on a fixed NB201 sample."""
     import scipy.stats as st
 
+    proxies = proxies or ALL_PROXIES
     with open(zc_json_path) as f:
         zc = json.load(f)
     if dataset in zc:
@@ -168,11 +170,11 @@ def run_gate(zc_json_path: str, n_sample: int = 500, seed: int = 0, dataset: str
     sample = rng.sample(keys, min(n_sample, len(keys)))
     inputs, targets = fixed_cifar_batch()
 
-    theirs = {p: [] for p in ALL_PROXIES}
-    ours = {p: [] for p in ALL_PROXIES}
+    theirs = {p: [] for p in proxies}
+    ours = {p: [] for p in proxies}
     for i, key in enumerate(sample):
         arch = op_indices_key_to_arch_str(key)
-        for p in ALL_PROXIES:
+        for p in proxies:
             entry = zc[key].get(p)
             if entry is None:
                 continue
@@ -183,18 +185,22 @@ def run_gate(zc_json_path: str, n_sample: int = 500, seed: int = 0, dataset: str
 
     print("\n=== NB201 VALIDATION GATE ===")
     results = {}
-    for p in ALL_PROXIES:
+    for p in proxies:
         if not theirs[p]:
             print(f"{p:10s}  (not in NB-Suite-Zero json)")
             continue
-        rho = st.spearmanr(theirs[p], ours[p]).statistic
+        rho = float(st.spearmanr(theirs[p], ours[p]).statistic)
         threshold = 0.99 if p in DATA_FREE else 0.90
         status = "PASS" if rho >= threshold else "FAIL <-- implementation bug until proven otherwise"
-        results[p] = {"rho": rho, "threshold": threshold, "pass": rho >= threshold}
+        results[p] = {"rho": rho, "threshold": threshold, "pass": bool(rho >= threshold)}
         print(f"{p:10s}  rho={rho:.4f}  (gate {threshold})  {status}")
     out = os.path.join(os.path.dirname(__file__), "results", "nb201_gate.json")
+    merged = {}
+    if os.path.exists(out):
+        merged = json.load(open(out)).get("results", {})
+    merged.update(results)
     with open(out, "w") as f:
-        json.dump({"n_sample": len(sample), "seed": seed, "dataset": dataset, "results": results}, f, indent=1)
+        json.dump({"n_sample": len(sample), "seed": seed, "dataset": dataset, "results": merged}, f, indent=1)
     print(f"saved -> {out}")
 
 
@@ -203,9 +209,10 @@ if __name__ == "__main__":
     ap.add_argument("--zc-json", default="data/nbs_zero/zc_nasbench201.json")
     ap.add_argument("--n", type=int, default=500)
     ap.add_argument("--threads", type=int, default=6)
+    ap.add_argument("--proxies", default=None, help="comma-separated subset to (re)gate")
     args = ap.parse_args()
     torch.set_num_threads(args.threads)
     if not os.path.exists(args.zc_json):
         print(f"missing {args.zc_json}\n\n{download_instructions()}")
     else:
-        run_gate(args.zc_json, args.n)
+        run_gate(args.zc_json, args.n, proxies=args.proxies.split(",") if args.proxies else None)

@@ -1,0 +1,73 @@
+{
+ "n_sample": 500,
+ "seed": 0,
+ "dataset": "cifar10",
+ "results": {
+  "params": {
+   "rho": 1.0,
+   "threshold": 0.99,
+   "pass": true,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  },
+  "flops": {
+   "rho": 0.996,
+   "threshold": 0.99,
+   "pass": true,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  },
+  "l2_norm": {
+   "rho": 0.9468,
+   "threshold": 0.9,
+   "pass": true,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  },
+  "plain": {
+   "rho": 0.1671,
+   "threshold": 0.9,
+   "pass": false,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  },
+  "grad_norm": {
+   "rho": 0.9906,
+   "threshold": 0.9,
+   "pass": true,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  },
+  "snip": {
+   "rho": 0.9887,
+   "threshold": 0.9,
+   "pass": true,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  },
+  "grasp": {
+   "rho": 0.683,
+   "threshold": 0.9,
+   "pass": false,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  },
+  "fisher": {
+   "rho": 0.9303,
+   "threshold": 0.9,
+   "pass": true,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  },
+  "synflow": {
+   "rho": 0.9992,
+   "threshold": 0.99,
+   "pass": true,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  },
+  "nwot": {
+   "rho": 0.9959,
+   "threshold": 0.9,
+   "pass": true,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  },
+  "zen": {
+   "rho": 0.3712,
+   "threshold": 0.9,
+   "pass": false,
+   "source": "run of 2026-08-04 (json save crashed; values from log)"
+  }
+ }
+}
