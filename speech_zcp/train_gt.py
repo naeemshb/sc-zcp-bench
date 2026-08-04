@@ -33,10 +33,15 @@ RECIPE = {
     "lr_min": 1e-5,
     "weight_decay": 0.0,
     "batch_size": 128,
-    "max_epochs": 20,
-    "early_stop_patience": 5,  # epochs without val-acc improvement
+    "max_epochs": 15,
+    "early_stop_patience": 3,  # epochs without val-acc improvement
+    # Stratified train subsample (seed 0). Full 36.9k x 20 epochs measured
+    # 56 min/model on M3 CPU (pilot-v1 gate failure); 10k x 15 epochs on MPS
+    # puts the largest Space-A models at ~2 min. Reduced data also widens
+    # accuracy spread, which the benchmark needs. Val/test stay full-size.
+    "train_subsample": 10000,
     "loss": "cross_entropy",
-    "recipe_version": "pilot-v1",  # bump ONLY if the pilot forces a change
+    "recipe_version": "pilot-v2",  # bump ONLY if the pilot forces a change
 }
 
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
@@ -49,6 +54,20 @@ def git_hash() -> str:
         ).strip()
     except Exception:
         return "unknown"
+
+
+def _stratified_subsample(x, y, n: int, seed: int = 0):
+    """Deterministic per-class proportional subsample of the training split."""
+    if n >= len(y):
+        return x, y
+    g = torch.Generator().manual_seed(seed)
+    keep = []
+    for c in y.unique(sorted=True):
+        idx = (y == c).nonzero(as_tuple=True)[0]
+        n_c = max(1, round(n * len(idx) / len(y)))
+        keep.append(idx[torch.randperm(len(idx), generator=g)[:n_c]])
+    keep = torch.cat(keep)
+    return x[keep], y[keep]
 
 
 def _epoch_iter(x, y, batch_size, generator):
@@ -77,7 +96,9 @@ def train_one(cfg: dict, data: dict, device: str, seed: int = 0) -> dict:
         opt, T_max=RECIPE["max_epochs"], eta_min=RECIPE["lr_min"]
     )
     gen = torch.Generator().manual_seed(seed)
-    xtr, ytr = data["train"]["x"], data["train"]["y"]
+    xtr, ytr = _stratified_subsample(
+        data["train"]["x"], data["train"]["y"], RECIPE["train_subsample"]
+    )
 
     best_val, best_state, best_epoch, bad_epochs = -1.0, None, -1, 0
     t0 = time.time()
