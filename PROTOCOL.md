@@ -115,12 +115,13 @@ Evolution runs over cached tensors cost seconds per candidate; pop 30 × 15 gene
 
 ## 8. Verification to-dos (cheap, do before the corresponding paper sentences)
 
-- [ ] NB-Suite-Zero task list (NASLib `zerocost` branch): exact 28 tasks; is a non-vision task (NinaPro?) included with precomputed scores + accuracies?
-- [ ] GreenMachine + GreenFactory: confirm search spaces are vision-only; note their method deltas for related work.
-- [ ] EZNAS: confirm evolved/evaluated spaces (believed NB201 + NDS, vision).
-- [ ] Fresh literature pass for "zero-cost / training-free NAS" ∩ "speech / KWS / audio" before writing "to our knowledge."
-- [ ] License check for adapting reference proxy implementations; attribute in code headers.
-- [ ] SC v2 12-class vs 35-class conventions; report exact split protocol in the paper.
+- [x] NB-Suite-Zero task list: 28 tasks confirmed; NinaPro (sEMG, non-vision, NOT audio) on NB201 with precomputed scores + accuracies — free transfer-matrix column. Suite has zero audio tasks (motivation). *(2026-08-04, see RELATED_WORK_NOTES.md)*
+- [x] GreenMachine + GreenFactory: vision-only confirmed (NATS-Bench, CIFAR/ImageNet16); both arXiv-only, cite as preprints. *(2026-08-04)*
+- [x] EZNAS: NB201 + NDS-DARTS evolution, NB201/NDS/NATS eval — vision-only confirmed. *(2026-08-04)*
+- [x] Literature pass done: blanket "no ZC-NAS for speech" is FALSE — Abdelfattah ICLR'21 and **ProxyBO (AAAI 2023)** both evaluated on NB-ASR. Use the qualified phrasing in RELATED_WORK_NOTES.md; add ProxyBO to references. *(2026-08-04)*
+- [x] Licenses: zero-cost-nas (via mohsaied mirror; original 404) and NASLib both Apache-2.0; attribute in code headers, keep notices. *(2026-08-04)*
+- [ ] SC v2 12-class vs 35-class conventions; report exact split protocol in the paper. *(frozen protocol implemented in data_sc.py; write-up pending)*
+- [x] NB-ASR recovery re-check: still unavailable as of 2026-08-04 (repo deleted, mirrors code-only/empty, nothing on HF).
 
 ---
 
