@@ -1,0 +1,168 @@
+# Project: Sample-Efficient Specialization of Zero-Cost Proxies for Speech Architectures (ICASSP 2027)
+
+**Deadline:** September 16, 2026 (AoE). Internal freeze: **September 9** (numbers frozen, writing only).
+**Format:** ICASSP — 4 pages + 1 reference page. Budget: 2 figures, 1 main table, 1 compact ablation/search block.
+**Track:** Speech & Language Processing (primary); Machine Learning and Generative AI (fallback).
+**Today's baseline assumption:** the NAS-Bench-ASR ground-truth pickles are permanently lost (repo deleted; release assets not in forks; Wayback has the page, not the binaries; the marsggbo/automl-benchmarks HF mirror has an empty nasbench-asr folder asking for copies). Recovery emails to the original authors are out; see Contingencies.
+
+---
+
+## 1. Research question and claims
+
+**Primary question:** How much target-domain ground truth does it take to specialize a zero-cost proxy to a domain that has no benchmark?
+
+**Design principle — finding-robustness:** the headline experiment (specialization learning curve) is publishable on either branch of its hypothesis:
+- If vision-evolved proxies transfer poorly to speech and small budgets (N ≤ 200 trained models) close the gap → "specialization is necessary and cheap."
+- If vision-evolved proxies transfer well → "evolved proxies generalize across modalities," itself noteworthy against the transfer-skeptical literature.
+Do not let any experiment or writing choice re-anchor the paper on "evolved beats baselines on speech" as the only success condition.
+
+**Contributions (paper order):**
+1. A small, permanently archived zero-cost-proxy evaluation benchmark for speech (two KWS search spaces with trained ground truth), motivated by the documented loss of NAS-Bench-ASR — the field's only speech NAS benchmark.
+2. The specialization learning curve: held-out speech rank correlation of GP-evolved proxies as a function of speech ground-truth budget N ∈ {0, 25, 50, 100, 200}, with standard proxies and #params/FLOPs as budget-0 reference lines.
+3. A cross-space and cross-modality transfer analysis (speech space A ↔ speech space B ↔ NAS-Bench-201 vision).
+4. A compact training-free search demonstration: proxy-guided evolutionary search discovering small-footprint KWS models at CPU-minutes cost.
+
+**Positioning (verify before writing; see §8 to-dos):**
+- Abdelfattah et al., ICLR 2021: introduced the standard proxy suite and evaluated it on NAS-Bench-ASR; their published speech correlations are the citable motivation that proxies weaken on speech. We cite their numbers; we cannot re-measure them (data lost).
+- EZNAS (NeurIPS 2022), GreenMachine (2024), GreenFactory (2025): automatic proxy design/combination — all believed vision-only. Our delta is NOT "we evolve proxies"; it is the domain-budget question + speech + benchmark release. Never claim method-level novelty for GP-evolved proxies.
+- ICASSP precedent for the task: SANAS (ICASSP 2019), Zhang et al. differentiable NAS for KWS (ICASSP 2021, ~97.2% @ ~100K params on SC v1), Peter/Roth/Pernkopf end-to-end KWS NAS + quantization (ICASSP 2022). All training-based; all efficiency-framed. Our search demo speaks to this audience.
+- Training-free NAS for RNNs/Transformers (language) and the TPAMI zero-shot-NAS survey: nearest non-vision neighbors; no zero-cost NAS work for speech found as of Aug 2026. Phrase as "to our knowledge" only after the §8 literature re-check.
+
+---
+
+## 2. Hard rules (project-wide, non-negotiable)
+
+1. **No claim without a reproducing artifact.** Every number in the paper traces to a CSV/JSON produced by a script in this repo, with config JSON + git hash + timestamp saved alongside.
+2. **Acceptance tests before features.** No proxy implementation is "done" until it passes the NB201 validation gate (§4).
+3. **Holdout sanctity.** Evolved proxies are fitted on designated specialization pools and model-selected on validation architectures only. Space-B and A-test correlations are computed once, by `evaluate.py`, after evolution configs are frozen. No peeking, no post-hoc pool re-draws, no early stopping on test metrics.
+4. **CI-gated language.** Never write "X outperforms Y" unless their bootstrap CIs separate. Ties are reported as ties. With n≈200 evaluation architectures, Spearman CIs are ~±0.08–0.10 wide: we can distinguish 0.70 from 0.50, not 0.72 from 0.68. Precision@10% at n=200 involves 20 architectures and is noisy — report it, never headline it.
+5. **NaN/Inf discipline.** Invalid evolved formulas (NaN, Inf, constant output, <90% valid architectures) receive worst fitness; never crash, never silently propagate.
+6. **Fixed recipes.** One frozen training recipe for all ground-truth models (§3); one frozen statistics-extraction protocol for all caches (§5). Any change after the pilot invalidates and restarts the affected sweep.
+7. **No cross-version comparisons presented as equivalent.** Prior ICASSP KWS numbers on SC v1 are context, not baselines; label protocol differences explicitly.
+
+---
+
+## 3. Phase B — the speech benchmark (name TBD; placeholder "SC-ZCP-Bench")
+
+**Dataset:** Google Speech Commands v2. Default task: 12-class (10 commands + silence + unknown). Switch to 35-class if the pilot shows accuracy saturation (spread check below). Features: 40-mel log-spectrograms, fixed frontend, cached to disk once.
+
+**Two search spaces, grounded in citable KWS families:**
+- **Space A (DS-CNN-style):** 2D depthwise-separable conv stacks — sampled dims: #blocks 2–6, channels per block from {16…172}, kernel {3×3, 5×5, 7×7 subset}, stride pattern, pooling type. (Zhang et al., "Hello Edge.")
+- **Space B (TC-ResNet-style):** temporal-conv residual stacks — sampled dims: #blocks, width multiplier, temporal kernel {3…15}, dilation on/off. (Choi et al., Interspeech 2019.)
+Sampling grammars live in `spaces.py`, are seeded, and are released with the benchmark. Ranges must be tuned in the pilot to produce **deliberate accuracy spread** (weak to strong models); a benchmark where everything scores 93–95% cannot rank proxies.
+
+**Counts (primary plan; trim per pilot wall-clock):**
+- Space A: 250 architectures = 200 specialization pool + 50 fixed A-test.
+- Space B: 200 architectures, evaluation-only (never used for fitting anything).
+- Noise subset: 50 Space-B architectures × 2 extra seeds (3 total) → **test-retest Spearman = the noise ceiling**, reported in the paper as the upper bound no proxy can exceed.
+- Total trainings ≈ 550. At 2–5 min/model split across both machines ≈ 1.5–3 days wall-clock.
+
+**Training recipe (frozen after pilot):** Adam, fixed lr schedule, ≤20 epochs with early stopping on a fixed validation split, fixed batch size, one seed (seed 0) except the noise subset. Record test accuracy, val accuracy, params, FLOPs, wall-clock per model.
+
+**Pilot gate (before the full sweep):** train 10 architectures per space on each machine. PASS requires: (a) wall-clock ≤ 5 min/model on the slower machine, (b) accuracy spread ≥ 15 percentage points across the 20 pilot models (else widen sampling ranges or move to 35-class and re-pilot), (c) no recipe instability (divergence/NaN).
+
+**Release:** at submission, archive ground truth + grammars + recipe + per-model logs on Zenodo or HF with a DOI. The lost-NB-ASR story is the opening motivation; the DOI is its resolution.
+
+---
+
+## 4. Phase V — proxy suite and the NB201 validation gate
+
+**Proxy suite:** synflow, snip, grasp, fisher, grad_norm, jacob_cov (nwot-style), l2_norm, plain, zen (or one AZ-NAS component) + trivial baselines #params, FLOPs. Implementations adapted from the reference zero-cost-nas / NASLib code where licenses allow.
+
+**Validation gate (replaces the lost NB-ASR reproduction test, and is tighter):** NAS-Bench-Suite-Zero releases precomputed per-architecture proxy scores on NAS-Bench-201. On a ≥500-architecture NB201/CIFAR-10 sample:
+- Compute each proxy with our implementation and Spearman-correlate against the precomputed scores **per proxy, per architecture**.
+- PASS thresholds: ρ ≥ 0.99 for data-free proxies (synflow, params, flops; fixed init seed), ρ ≥ 0.90 for data-dependent proxies (minibatch differences legitimately perturb scores). Any miss = implementation bug until proven otherwise; investigate, do not rationalize.
+- Note precisely: NB-Suite-Zero provides **scalar scores and ground-truth accuracies** (via NASLib), NOT raw statistics tensors. It serves (a) this gate and (b) baseline columns in vision cells of the transfer matrix. Vision-side *evolution* requires our own NB201 statistics cache (§5).
+
+---
+
+## 5. Phase C — statistics caches
+
+For every architecture in {Space A, Space B, NB201 sample (~500)}: one forward + one backward pass (CE loss) on a fixed minibatch (batch 8, fixed seed), caching per-layer: weights W_l, gradients G_l, activations A_l, plus params/FLOPs/depth metadata. One compressed file per architecture under `cache/`; memory-mapped loading; working set must fit 16 GB RAM.
+
+**Speech-specific terminals (the interpretability bet):** additionally cache (i) per-layer activation std **across the time axis**, (ii) the same statistics on a matched noise minibatch, enabling real-vs-noise contrast terminals. Vision-evolved proxies cannot exploit temporal structure; if speech-specialized proxies preferentially select these terminals, that is the paper's interpretable mechanism. Report terminal-usage frequencies across evolved elites.
+
+Parallelization: 4–6 worker processes, `torch.set_num_threads(2)` per worker. PC: High Performance power plan, sleep off. Mac: `caffeinate`; benchmark MPS vs CPU on 10 architectures first and use whichever wins.
+
+---
+
+## 6. Phase E — GP evolution and the learning curve
+
+**Engine:** typed GP adapted from the 3C-EA `core.py` tree machinery (node builders, mutation, crossover, validate, infix printer). Types: {per-layer tensor} → elementwise ops (+, −, ×, safe-÷, abs, log(|·|+ε), sign, relu, square) → reductions to scalar (sum, mean, std, L1, L2, frac-positive) → cross-layer aggregation (sum, mean, min, max). Reject ill-typed offspring. Complexity penalty on node count. Depth cap from pilot timing.
+
+**Budgets and splits.** For each evolution seed s ∈ {1..10} and each budget N ∈ {25, 50, 100, 200}: draw a **nested** chain (25 ⊂ 50 ⊂ 100 ⊂ 200) from the Space-A specialization pool, stratified by FLOPs, seeded by s. Fitness = Spearman(formula score, ground-truth accuracy) on the first 80% of the chain; model selection (elite choice) on the remaining 20%. N=0 = evolved on the NB201 cache against NB201 accuracies (no speech data touched).
+**Warm-start ablation:** at each N, compare cold-start populations vs populations seeded with N=0 (vision-evolved) elites.
+
+**Reporting.** For every (seed, N): Spearman, Kendall τ, Precision@10% on (a) Space B (primary, never fitted), (b) A-test (within-space). Headline **Figure 1**: x = N (log scale incl. 0), y = Space-B Spearman, mean ± 95% CI over 10 seeds; flat reference lines = each standard proxy, #params, FLOPs (with their own bootstrap CIs); horizontal dashed line = test-retest noise ceiling.
+
+**Early sanity gate (end of week 3):** at N=200, evolved proxies must exceed #params on Space B overall AND within FLOPs terciles, with CI separation. If not → §9 pivots.
+
+Evolution runs over cached tensors cost seconds per candidate; pop 30 × 15 generations × 4 budgets × 10 seeds is hours-to-a-day per machine. Split seeds: Mac 6, PC 4.
+
+---
+
+## 7. Phase X — transfer matrix, search demo, statistics
+
+**Figure 2 — transfer matrix (heatmap):** rows = where evolved (NB201, Space A @ N=200; optionally Space B for symmetry), columns = where evaluated (NB201 held-out, Space A-test, Space B). Include the best standard proxy as a reference row. If the §8 check confirms a non-vision NB-Suite-Zero task (e.g., NinaPro-on-NB201) with precomputed scores + accuracies, add it as a free established non-vision column — it blunts "everything non-vision here is self-made."
+
+**Table 1 — correlations with CIs:** all proxies + evolved (per budget) on Space B: Spearman [95% CI], Kendall τ, P@10%; plus within-FLOPs-tercile Spearman (size-bias control). Wilcoxon signed-rank across the 10 evolution seeds for evolved-vs-best-baseline at each N (one-sided; p<.05 / p<.01 two-symbol convention; cite Derrac et al. 2011).
+
+**Search demo (compact block):** aging evolution over Space B using (i) evolved proxy, (ii) best standard proxy, (iii) #params, (iv) random — best-found ground-truth accuracy vs #queries, mean ± CI over ≥20 repetitions (pure lookups). Punchline sentence: best discovered model's accuracy@params, with search cost in CPU-minutes on commodity hardware, contextualized against ICASSP 2021/2022 training-based KWS-NAS (explicitly labeled different protocol/version — context, not baseline).
+
+**Bootstrap protocol:** percentile bootstrap over architectures, 10,000 resamples, for every correlation and P@k. Seeds and resample indices logged.
+
+---
+
+## 8. Verification to-dos (cheap, do before the corresponding paper sentences)
+
+- [ ] NB-Suite-Zero task list (NASLib `zerocost` branch): exact 28 tasks; is a non-vision task (NinaPro?) included with precomputed scores + accuracies?
+- [ ] GreenMachine + GreenFactory: confirm search spaces are vision-only; note their method deltas for related work.
+- [ ] EZNAS: confirm evolved/evaluated spaces (believed NB201 + NDS, vision).
+- [ ] Fresh literature pass for "zero-cost / training-free NAS" ∩ "speech / KWS / audio" before writing "to our knowledge."
+- [ ] License check for adapting reference proxy implementations; attribute in code headers.
+- [ ] SC v2 12-class vs 35-class conventions; report exact split protocol in the paper.
+
+---
+
+## 9. Kill criteria and pivots (with dates)
+
+- **Pilot fails spread even at 35-class (by ~Aug 12):** the benchmark cannot rank proxies → fall back to the documented corruption-KWS plan (reliability-aware activations under Gilbert–Elliott loss); its spec is in the project history.
+- **Noise ceiling too low (test-retest Spearman < 0.75):** single-seed ground truth is too noisy → add a second seed to all Space-B architectures (doubles B-sweep cost; still ≤ 1 day) before abandoning anything.
+- **Week-3 sanity gate fails (evolved ≤ #params with CIs overlapping):** the finding-robust framing still holds ONLY if N=0 transfer is informative; re-center the paper on the transfer/generalization result and the benchmark release, and say plainly that specialization did not beat trivial baselines at these budgets. Do not stretch claims; do not attempt a pure negative-result 4-pager (FALE lesson).
+- **NB-ASR pickles recovered before ~Aug 25:** add NB-ASR as a third evaluation column (validation gate per §4 applies first); do NOT re-plan the paper around it. After Aug 25: camera-ready/arXiv extension only. Notification is Jan 13, 2027 — recovered data can still enter the camera-ready.
+
+---
+
+## 10. Timeline (today: Aug 4)
+
+- **W1 (Aug 4–10):** §4 proxy suite + NB201 validation gate; `spaces.py` grammars; pilot (10+10 archs, both machines); launch full ground-truth sweep on PASS. §8 checks in parallel.
+- **W2 (Aug 11–17):** finish sweeps + noise subset; build all caches (speech + NB201); typed-GP engine + unit tests (known formulas reproduce hand-computed scores on toy nets).
+- **W3 (Aug 18–24):** learning-curve runs (all budgets × 10 seeds); week-3 sanity gate; warm-start ablation.
+- **W4 (Aug 25–31):** transfer matrix; search demo; Table 1 + all bootstrap/Wilcoxon machinery; freeze figures.
+- **W5 (Sep 1–7):** numbers frozen; full draft (intro leads with the lost-benchmark motivation); 100% code–paper consistency pass (every number ↔ artifact).
+- **W6 (Sep 8–16):** polish, co-author/advisor review, Zenodo/HF DOI minted, submit ≤ Sep 16, target Sep 9.
+
+## 11. Machines
+
+- **PC (Ryzen 5 5600G, 24 GB, Windows):** ground-truth sweeps, cache building, 4 evolution seeds. CPU-only — the RX 6500 XT is unusable for PyTorch (no ROCm for Navi 24; DirectML not research-grade). Enable XMP/DOCP (RAM currently 2133 → target 3200).
+- **MacBook M3 Pro:** development, 6 evolution seeds, analysis, figures, paper. MPS-vs-CPU decided by the 10-arch benchmark, per workload.
+
+## 12. Repo layout
+
+```
+speech_zcp/
+  spaces.py        # Space A/B sampling grammars (seeded, released)
+  train_gt.py      # frozen ground-truth training recipe + sweep runner
+  proxies.py       # standard suite + NB201 validation gate tests
+  bench_201.py     # NB201 sample loader; NB-Suite-Zero score/accuracy access
+  cache_stats.py   # statistics extraction workers (speech + vision)
+  gp_engine.py     # typed GP (adapted from 3C-EA core.py) + unit tests
+  evolve.py        # budget-curve evolution entry point (CONFIG dict at top)
+  evaluate.py      # the ONLY script that touches Space B / A-test; bootstrap + Wilcoxon
+  search_demo.py   # aging-evolution demo over precomputed scores
+  results/  cache/  logs/  figures/  splits/
+```
+
+## 13. Key references
+
+Abdelfattah, Mehrotra, Dudziak, Lane — Zero-Cost Proxies for Lightweight NAS, ICLR 2021 (incl. NB-ASR results). Mehrotra et al. — NAS-Bench-ASR, ICLR 2021. Akhauri et al. — EZNAS, NeurIPS 2022. GreenMachine (2024); GreenFactory (2025). Mellor et al. — NAS without Training, ICML 2021. Krishnakumar et al. — NAS-Bench-Suite-Zero, NeurIPS 2022. TPAMI zero-shot NAS survey (2024). SANAS, ICASSP 2019; Zhang et al., ICASSP 2021; Peter, Roth, Pernkopf, ICASSP 2022 (KWS-NAS precedents). Zhang et al. — Hello Edge (DS-CNN). Choi et al. — TC-ResNet, Interspeech 2019. Warden — Speech Commands. Real et al. — aging evolution. Derrac et al. 2011 — statistical protocol.

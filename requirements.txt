@@ -1,0 +1,6 @@
+torch>=2.3
+torchaudio
+numpy
+scipy
+pandas
+tqdm
