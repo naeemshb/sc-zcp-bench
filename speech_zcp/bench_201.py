@@ -202,7 +202,9 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--zc-json", default="data/nbs_zero/zc_nasbench201.json")
     ap.add_argument("--n", type=int, default=500)
+    ap.add_argument("--threads", type=int, default=6)
     args = ap.parse_args()
+    torch.set_num_threads(args.threads)
     if not os.path.exists(args.zc_json):
         print(f"missing {args.zc_json}\n\n{download_instructions()}")
     else:

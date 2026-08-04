@@ -61,6 +61,8 @@ Sampling grammars live in `spaces.py`, are seeded, and are released with the ben
 
 **Pilot gate (before the full sweep):** train 10 architectures per space on each machine. PASS requires: (a) wall-clock ≤ 5 min/model on the slower machine, (b) accuracy spread ≥ 15 percentage points across the 20 pilot models (else widen sampling ranges or move to 35-class and re-pilot), (c) no recipe instability (divergence/NaN).
 
+**PILOT OUTCOME (2026-08-04): PASSED — recipe and grammars FROZEN.** Three iterations: v1 recipe failed wall-clock (56 min/model, full-data CPU); grammar v1 failed spread (8.1 pts); grammar v2 uncapped failed wall-clock marginally (313 s outlier at 112M MACs) with pooled params-rho 0.908. Frozen state: recipe `pilot-v2` (Adam 3e-3 cosine, batch 128, ≤15 epochs, patience 3, stratified 10k train subsample, seed 0) + grammar v2.1 (quality-degrading knobs: kernel-1, strided stems, free strides, dilation 4, width down to 8ch/0.25×; 60M-MAC rejection cap). Final gate on n=40 (20/space, MPS): max wall-clock 197 s, spread 65.5 pts (30.8 functional-only), params-rho within-A 0.684 / within-B 0.727 (pooled 0.852 is a cross-space size confound — within-space is the operative headroom number). 12-class retained; 35-class not needed. ALL ground-truth training runs on the Mac (MPS, 12–59× faster than CPU; depthwise convs pathological on CPU — CPU-only PC cannot train Space A). PC role reassigned: statistics caches, evolution seeds, gate compute.
+
 **Release:** at submission, archive ground truth + grammars + recipe + per-model logs on Zenodo or HF with a DOI. The lost-NB-ASR story is the opening motivation; the DOI is its resolution.
 
 ---
