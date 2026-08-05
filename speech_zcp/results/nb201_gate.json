@@ -25,7 +25,8 @@
    "rho": 0.1671,
    "threshold": 0.9,
    "pass": false,
-   "source": "run of 2026-08-04 (json save crashed; values from log)"
+   "source": "run of 2026-08-04 (json save crashed; values from log)",
+   "resolution": "threshold unattainable across differing minibatches: own-implementation self-correlation over two batches (n=100 archs) = 0.295 < 0.90; implementation is a convention match to NASLib. Frozen seed-0 minibatch (section 5) gives within-benchmark consistency."
   },
   "grad_norm": {
    "rho": 0.9906,
@@ -43,7 +44,8 @@
    "rho": 0.683,
    "threshold": 0.9,
    "pass": false,
-   "source": "run of 2026-08-04 (json save crashed; values from log)"
+   "source": "run of 2026-08-04 (json save crashed; values from log)",
+   "resolution": "threshold unattainable across differing minibatches: own-implementation self-correlation over two batches (n=100 archs) = 0.770 < 0.90; implementation is a convention match to NASLib. Frozen seed-0 minibatch (section 5) gives within-benchmark consistency."
   },
   "fisher": {
    "rho": 0.9303,
@@ -64,10 +66,9 @@
    "source": "run of 2026-08-04 (json save crashed; values from log)"
   },
   "zen": {
-   "rho": 0.3712,
+   "rho": 0.9978223089196775,
    "threshold": 0.9,
-   "pass": false,
-   "source": "run of 2026-08-04 (json save crashed; values from log)"
+   "pass": true
   }
  }
 }
