@@ -153,14 +153,23 @@ def build_speech(space: str):
     print(f"{space}: done, {len(index)} archs indexed")
 
 
-def build_nb201_cache(n_sample: int = 500):
+def build_nb201_cache(n_sample: int = 500, holdout: bool = False, n_holdout: int = 200):
+    """Default: the 500-arch evolution/gate sample (seed 0). holdout=True:
+    n_holdout archs sampled (seed 1) from OUTSIDE that set — the N=0 elites
+    were fitted on all 500, so transfer-matrix NB201 cells must use these."""
     from .bench_201 import fixed_cifar_batch, op_indices_key_to_arch_str
 
-    out_dir = os.path.join(CACHE_DIR, "nb201")
+    name = "nb201_holdout" if holdout else "nb201"
+    out_dir = os.path.join(CACHE_DIR, name)
     os.makedirs(out_dir, exist_ok=True)
     zc = json.load(open("data/nbs_zero/zc_nasbench201.json"))["cifar10"]
     keys = sorted(zc.keys())
-    sample = random.Random(0).sample(keys, n_sample)  # same sample as the gate
+    fit_sample = set(random.Random(0).sample(keys, n_sample))  # same sample as the gate
+    if holdout:
+        rest = [k for k in keys if k not in fit_sample]
+        sample = random.Random(1).sample(rest, n_holdout)
+    else:
+        sample = sorted(fit_sample)
     xc, yc = fixed_cifar_batch()
     x, y = xc[: PROTOCOL["batch_size"]], yc[: PROTOCOL["batch_size"]]
     index = {}
@@ -172,10 +181,10 @@ def build_nb201_cache(n_sample: int = 500):
             np.savez_compressed(path, **extract_nb201(arch, x, y))
         index[aid] = {"acc": zc[key]["val_accuracy"], "arch_str": arch, "i": i}
         if (i + 1) % 25 == 0:
-            print(f"nb201: {i + 1}/{len(sample)}", flush=True)
+            print(f"{name}: {i + 1}/{len(sample)}", flush=True)
     json.dump({"protocol": PROTOCOL, "archs": index},
-              open(os.path.join(CACHE_DIR, "nb201_index.json"), "w"))
-    print(f"nb201: done, {len(index)} archs indexed")
+              open(os.path.join(CACHE_DIR, f"{name}_index.json"), "w"))
+    print(f"{name}: done, {len(index)} archs indexed")
 
 
 def load_arch(cache_name: str, arch_id: str) -> dict:
@@ -185,12 +194,14 @@ def load_arch(cache_name: str, arch_id: str) -> dict:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--target", required=True, choices=["A", "B", "nb201"])
+    ap.add_argument("--target", required=True, choices=["A", "B", "nb201", "nb201_holdout"])
     ap.add_argument("--threads", type=int, default=8)
     args = ap.parse_args()
     torch.set_num_threads(args.threads)
     if args.target == "nb201":
         build_nb201_cache()
+    elif args.target == "nb201_holdout":
+        build_nb201_cache(holdout=True)
     else:
         build_speech(args.target)
 

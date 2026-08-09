@@ -1,0 +1,61 @@
+{
+ "rows": [
+  "evolved: vision (N=0)",
+  "evolved: Space A (N=200)",
+  "FLOPs",
+  "nwot",
+  "#params"
+ ],
+ "cols": [
+  "NB201 held-out",
+  "NinaPro*",
+  "A-test",
+  "Space B"
+ ],
+ "matrix": [
+  [
+   0.8174691194735049,
+   NaN,
+   0.7150547453500291,
+   0.4575762121666481
+  ],
+  [
+   0.7573880260891593,
+   NaN,
+   0.8243709191218676,
+   0.738789386077707
+  ],
+  [
+   0.7544292477940251,
+   -0.12472745823410061,
+   0.5475412991330619,
+   0.8794884507308199
+  ],
+  [
+   0.7755615976786036,
+   0.005213500745115513,
+   0.47742988914058077,
+   0.8636548075414286
+  ],
+  [
+   0.7544292477940251,
+   -0.10141136810230933,
+   0.8326930474449478,
+   0.7522961274122375
+  ]
+ ],
+ "nb201_holdout_detail": {
+  "vision_N0": {
+   "rho": 0.8174691194735049,
+   "n_seeds": 10,
+   "skipped": 0
+  },
+  "speechA_N200": {
+   "rho": 0.7573880260891593,
+   "n_seeds": 7,
+   "skipped": 3
+  }
+ },
+ "ninapro_source": "NB-Suite-Zero precomputed (500-arch seed-0 sample)",
+ "note": "evolved x NinaPro N/A: no raw statistics exist; evolved NB201 cells average only seeds without speech-only terminals (skipped counts in nb201_holdout_detail)"
+}
