@@ -222,6 +222,7 @@ def main():
     if args.warm_start:
         ws = json.load(open(args.warm_start))
         warm_trees = [tree_from_json(ws["tree_json"])]
+        tag += "_warm"  # keep cold-start artifacts intact (ablation pairs)
 
     best, history = evolve(args.seed, ctxs_fit, accs_fit, ctxs_sel, accs_sel,
                            terminals, warm_trees)
