@@ -1,0 +1,147 @@
+{
+ "tag": "A_N25_s5_warm",
+ "budget": 25,
+ "seed": 5,
+ "tree": "asum(rl1(W))",
+ "tree_json": {
+  "op": "asum",
+  "children": [
+   {
+    "op": "rl1",
+    "children": [
+     {
+      "op": "W",
+      "children": []
+     }
+    ]
+   }
+  ]
+ },
+ "terminals_used": [
+  "W"
+ ],
+ "selection_fitness": 0.8041558141786077,
+ "fit_rho": 0.8101558141786077,
+ "found_at_gen": 9,
+ "history": [
+  {
+   "gen": 0,
+   "best_fit": 0.7187547739375579,
+   "mean_fit": 0.23719488153198395
+  },
+  {
+   "gen": 1,
+   "best_fit": 0.7187547739375579,
+   "mean_fit": 0.351081229250913
+  },
+  {
+   "gen": 2,
+   "best_fit": 0.7187547739375579,
+   "mean_fit": 0.5377789300472114
+  },
+  {
+   "gen": 3,
+   "best_fit": 0.7187547739375579,
+   "mean_fit": 0.5869906566166765
+  },
+  {
+   "gen": 4,
+   "best_fit": 0.7187547739375579,
+   "mean_fit": 0.5521209153331419
+  },
+  {
+   "gen": 5,
+   "best_fit": 0.7187547739375579,
+   "mean_fit": 0.5991948912483408
+  },
+  {
+   "gen": 6,
+   "best_fit": 0.7187547739375579,
+   "mean_fit": 0.5612405089890552
+  },
+  {
+   "gen": 7,
+   "best_fit": 0.738297378683048,
+   "mean_fit": 0.6594820537494319
+  },
+  {
+   "gen": 8,
+   "best_fit": 0.787614171249035,
+   "mean_fit": 0.5265409693739638
+  },
+  {
+   "gen": 9,
+   "best_fit": 0.8041558141786077,
+   "mean_fit": 0.5535870018812796
+  },
+  {
+   "gen": 10,
+   "best_fit": 0.8041558141786077,
+   "mean_fit": 0.5879445079324639
+  },
+  {
+   "gen": 11,
+   "best_fit": 0.8041558141786077,
+   "mean_fit": 0.49357101128245084
+  },
+  {
+   "gen": 12,
+   "best_fit": 0.8041558141786077,
+   "mean_fit": 0.6300979144164852
+  },
+  {
+   "gen": 13,
+   "best_fit": 0.8041558141786077,
+   "mean_fit": 0.7181297711734158
+  },
+  {
+   "gen": 14,
+   "best_fit": 0.8041558141786077,
+   "mean_fit": 0.7249972534318122
+  }
+ ],
+ "protocol": "no-split",
+ "config": {
+  "population": 30,
+  "generations": 15,
+  "tournament_k": 3,
+  "p_crossover": 0.5,
+  "elitism": 2,
+  "max_depth": 6,
+  "complexity_lambda": 0.002,
+  "fit_fraction": 0.8,
+  "small_n_threshold": 50,
+  "n_strata": 5,
+  "version": "evolve-v1"
+ },
+ "chain": [
+  "c2a70c86cb",
+  "a6b9c59e70",
+  "6330146d6b",
+  "0db1f6977a",
+  "e54f522fdf",
+  "e2c39d228f",
+  "40889a961c",
+  "a6658aae56",
+  "8b90d7e6dd",
+  "20011c7ed1",
+  "03ead57e8e",
+  "ed4cc54888",
+  "ab7171990e",
+  "16957b421d",
+  "0629bfb729",
+  "c78831701f",
+  "b8e01e4a92",
+  "fdf59c1fd7",
+  "7e6e84f778",
+  "cbfd5e87b7",
+  "c891484661",
+  "8e3118edf4",
+  "ec889e6205",
+  "833085520f",
+  "eef7d230f5"
+ ],
+ "warm_start": "speech_zcp/results/evolved/nb201_N0_s5.json",
+ "git_hash": "c54714e1a26b5b11cd35f858127884003474d065",
+ "timestamp": "2026-08-09T19:32:22.337435+00:00"
+}

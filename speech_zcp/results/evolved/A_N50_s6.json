@@ -1,0 +1,172 @@
+{
+ "tag": "A_N50_s6",
+ "budget": 50,
+ "seed": 6,
+ "tree": "asum(rl1(W))",
+ "tree_json": {
+  "op": "asum",
+  "children": [
+   {
+    "op": "rl1",
+    "children": [
+     {
+      "op": "W",
+      "children": []
+     }
+    ]
+   }
+  ]
+ },
+ "terminals_used": [
+  "W"
+ ],
+ "selection_fitness": 0.8792340936374549,
+ "fit_rho": 0.8852340936374549,
+ "found_at_gen": 5,
+ "history": [
+  {
+   "gen": 0,
+   "best_fit": 0.8780864345738294,
+   "mean_fit": 0.11437697215750836
+  },
+  {
+   "gen": 1,
+   "best_fit": 0.8780864345738294,
+   "mean_fit": 0.33202288886371945
+  },
+  {
+   "gen": 2,
+   "best_fit": 0.8780864345738294,
+   "mean_fit": 0.4749263931405682
+  },
+  {
+   "gen": 3,
+   "best_fit": 0.8780864345738294,
+   "mean_fit": 0.47291995766100114
+  },
+  {
+   "gen": 4,
+   "best_fit": 0.8780864345738294,
+   "mean_fit": 0.5450387100145008
+  },
+  {
+   "gen": 5,
+   "best_fit": 0.8792340936374549,
+   "mean_fit": 0.6184367346938776
+  },
+  {
+   "gen": 6,
+   "best_fit": 0.8792340936374549,
+   "mean_fit": 0.6049595838335334
+  },
+  {
+   "gen": 7,
+   "best_fit": 0.8792340936374549,
+   "mean_fit": 0.5773784713885555
+  },
+  {
+   "gen": 8,
+   "best_fit": 0.8792340936374549,
+   "mean_fit": 0.5955759903961583
+  },
+  {
+   "gen": 9,
+   "best_fit": 0.8792340936374549,
+   "mean_fit": 0.7172119014492518
+  },
+  {
+   "gen": 10,
+   "best_fit": 0.8792340936374549,
+   "mean_fit": 0.6812677871148458
+  },
+  {
+   "gen": 11,
+   "best_fit": 0.8792340936374549,
+   "mean_fit": 0.7277439423019104
+  },
+  {
+   "gen": 12,
+   "best_fit": 0.8792340936374549,
+   "mean_fit": 0.7458779845711729
+  },
+  {
+   "gen": 13,
+   "best_fit": 0.8792340936374549,
+   "mean_fit": 0.7810450347025533
+  },
+  {
+   "gen": 14,
+   "best_fit": 0.8792340936374549,
+   "mean_fit": 0.7701498823206004
+  }
+ ],
+ "protocol": "no-split",
+ "config": {
+  "population": 30,
+  "generations": 15,
+  "tournament_k": 3,
+  "p_crossover": 0.5,
+  "elitism": 2,
+  "max_depth": 6,
+  "complexity_lambda": 0.002,
+  "fit_fraction": 0.8,
+  "small_n_threshold": 50,
+  "n_strata": 5,
+  "version": "evolve-v1"
+ },
+ "chain": [
+  "596593b892",
+  "ed4cc54888",
+  "b4a12c6e51",
+  "da7a8fcd5f",
+  "20011c7ed1",
+  "bcc1ea66ed",
+  "4587fb80b5",
+  "79c809acd6",
+  "3e75179402",
+  "41f0ea1dfe",
+  "7a55aeaac5",
+  "6a8e1cdee1",
+  "b9f1bd4491",
+  "cb60a5e32e",
+  "1da3c7d8c7",
+  "63665a0f86",
+  "793bebf60e",
+  "a35ae5c158",
+  "43664fb36d",
+  "56677b8b66",
+  "248fb0b83c",
+  "8919b19028",
+  "e24196a041",
+  "3905d77b16",
+  "00caf5510f",
+  "7fca0d0033",
+  "febbe4a456",
+  "47d89ea41e",
+  "6457f5341a",
+  "09528c999c",
+  "2a32d53045",
+  "4bbcc4718f",
+  "e9b9176ebe",
+  "0db1f6977a",
+  "cdbf8fe95b",
+  "bc432c6cfc",
+  "40889a961c",
+  "3c5ed33a3f",
+  "460e4a183c",
+  "5139d3aadb",
+  "6bdb378727",
+  "0aba310148",
+  "a6658aae56",
+  "b4dcf7133c",
+  "b192e00a56",
+  "8ad3dc4476",
+  "b7084f57e7",
+  "c46d4f4a53",
+  "5d916f97c8",
+  "5b8f3e4b9d"
+ ],
+ "warm_start": null,
+ "git_hash": "c54714e1a26b5b11cd35f858127884003474d065",
+ "timestamp": "2026-08-09T19:23:17.064370+00:00"
+}

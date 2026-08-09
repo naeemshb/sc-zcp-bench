@@ -103,6 +103,8 @@ Parallelization: 4–6 worker processes, `torch.set_num_threads(2)` per worker. 
 
 **Early sanity gate (end of week 3):** at N=200, evolved proxies must exceed #params on Space B overall AND within FLOPs terciles, with CI separation. If not → §9 pivots.
 
+**GATE OUTCOME (2026-08-05, artifact results/evaluation.json): FAILS → §9 pivot taken.** Evolved N=200 on Space B: 0.739 ± 0.017 vs #params 0.752 (Wilcoxon one-sided p=0.99, wrong direction) and FLOPs 0.879 [CI 0.837–0.910], which sits AT the noise ceiling (0.909) — on this space no proxy, standard or evolved, beats compute. 6/10 N=200 seeds rediscovered `asum(rl1(W))` (a size proxy); the two best seeds (0.771, 0.750) use the noise-gradient terminal Gn — speech-specific terminals ARE selected when they help (interpretability finding intact). What survives with CI separation: the TRANSFER result — vision-evolved 0.458 ± 0.192 vs N=50-speech-evolved 0.702 ± 0.060; small speech budgets close most of the transfer gap. A-test (within-space) N=200 = 0.824. Warm-start ≈ cold everywhere (ablation: no benefit). RE-CENTERED PAPER: (1) benchmark release, (2) vision-evolved proxies transfer poorly + N ≤ 50 closes most of the gap, (3) sobering headline for the ICASSP audience: FLOPs is at the noise ceiling on TC-ResNet KWS — trivial compute is a near-sufficient ranking statistic; state plainly that specialization did not beat trivial baselines at these budgets. Do not stretch claims.
+
 Evolution runs over cached tensors cost seconds per candidate; pop 30 × 15 generations × 4 budgets × 10 seeds is hours-to-a-day per machine. Split seeds: Mac 6, PC 4.
 
 ---

@@ -1,0 +1,162 @@
+{
+ "tag": "A_N25_s4_warm",
+ "budget": 25,
+ "seed": 4,
+ "tree": "asum(rl2((log(AnstdT) - AstdT)))",
+ "tree_json": {
+  "op": "asum",
+  "children": [
+   {
+    "op": "rl2",
+    "children": [
+     {
+      "op": "sub",
+      "children": [
+       {
+        "op": "log",
+        "children": [
+         {
+          "op": "AnstdT",
+          "children": []
+         }
+        ]
+       },
+       {
+        "op": "AstdT",
+        "children": []
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "terminals_used": [
+  "AnstdT",
+  "AstdT"
+ ],
+ "selection_fitness": 0.7833846153846152,
+ "fit_rho": 0.7953846153846152,
+ "found_at_gen": 8,
+ "history": [
+  {
+   "gen": 0,
+   "best_fit": 0.75,
+   "mean_fit": 0.20418601903240077
+  },
+  {
+   "gen": 1,
+   "best_fit": 0.75,
+   "mean_fit": 0.2999631732180788
+  },
+  {
+   "gen": 2,
+   "best_fit": 0.7578461538461538,
+   "mean_fit": 0.3839328754715102
+  },
+  {
+   "gen": 3,
+   "best_fit": 0.7578461538461538,
+   "mean_fit": 0.5565448346283332
+  },
+  {
+   "gen": 4,
+   "best_fit": 0.7578461538461538,
+   "mean_fit": 0.6642347863991631
+  },
+  {
+   "gen": 5,
+   "best_fit": 0.7578461538461538,
+   "mean_fit": 0.6562732969205823
+  },
+  {
+   "gen": 6,
+   "best_fit": 0.7578461538461538,
+   "mean_fit": 0.6274480958563947
+  },
+  {
+   "gen": 7,
+   "best_fit": 0.7578461538461538,
+   "mean_fit": 0.6452409592803853
+  },
+  {
+   "gen": 8,
+   "best_fit": 0.7833846153846152,
+   "mean_fit": 0.6988554856600283
+  },
+  {
+   "gen": 9,
+   "best_fit": 0.7833846153846152,
+   "mean_fit": 0.7318027570488358
+  },
+  {
+   "gen": 10,
+   "best_fit": 0.7833846153846152,
+   "mean_fit": 0.7222493368700266
+  },
+  {
+   "gen": 11,
+   "best_fit": 0.7833846153846152,
+   "mean_fit": 0.5934920837681038
+  },
+  {
+   "gen": 12,
+   "best_fit": 0.7833846153846152,
+   "mean_fit": 0.6449828688989153
+  },
+  {
+   "gen": 13,
+   "best_fit": 0.7833846153846152,
+   "mean_fit": 0.6160241330107973
+  },
+  {
+   "gen": 14,
+   "best_fit": 0.7833846153846152,
+   "mean_fit": 0.5987854202956382
+  }
+ ],
+ "protocol": "no-split",
+ "config": {
+  "population": 30,
+  "generations": 15,
+  "tournament_k": 3,
+  "p_crossover": 0.5,
+  "elitism": 2,
+  "max_depth": 6,
+  "complexity_lambda": 0.002,
+  "fit_fraction": 0.8,
+  "small_n_threshold": 50,
+  "n_strata": 5,
+  "version": "evolve-v1"
+ },
+ "chain": [
+  "d70666446c",
+  "99ff6ad08c",
+  "8198040999",
+  "c752e267f6",
+  "1da3c7d8c7",
+  "bb832ba80a",
+  "6da39feaa2",
+  "c3e6cb1828",
+  "0db1f6977a",
+  "e54f522fdf",
+  "7fca0d0033",
+  "0b3f1bfd67",
+  "3c5ed33a3f",
+  "ae02458f54",
+  "d3c5bf80bf",
+  "596593b892",
+  "e7a86ae661",
+  "055fde3971",
+  "6457f5341a",
+  "5b8f3e4b9d",
+  "c78831701f",
+  "ac3156cda0",
+  "b9f1bd4491",
+  "f65b872f49",
+  "d66fdfeb17"
+ ],
+ "warm_start": "speech_zcp/results/evolved/nb201_N0_s4.json",
+ "git_hash": "c54714e1a26b5b11cd35f858127884003474d065",
+ "timestamp": "2026-08-09T19:32:16.535280+00:00"
+}

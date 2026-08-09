@@ -1,0 +1,157 @@
+{
+ "tag": "A_N25_s3",
+ "budget": 25,
+ "seed": 3,
+ "tree": "asum(rl2(sign(relu(G))))",
+ "tree_json": {
+  "op": "asum",
+  "children": [
+   {
+    "op": "rl2",
+    "children": [
+     {
+      "op": "sign",
+      "children": [
+       {
+        "op": "relu",
+        "children": [
+         {
+          "op": "G",
+          "children": []
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "terminals_used": [
+  "G"
+ ],
+ "selection_fitness": 0.9261538461538461,
+ "fit_rho": 0.9361538461538461,
+ "found_at_gen": 4,
+ "history": [
+  {
+   "gen": 0,
+   "best_fit": 0.9098461538461539,
+   "mean_fit": 0.27190189950837246
+  },
+  {
+   "gen": 1,
+   "best_fit": 0.9118461538461539,
+   "mean_fit": 0.5526423795524362
+  },
+  {
+   "gen": 2,
+   "best_fit": 0.9158461538461539,
+   "mean_fit": 0.6803570769298014
+  },
+  {
+   "gen": 3,
+   "best_fit": 0.9158461538461539,
+   "mean_fit": 0.7805801352686014
+  },
+  {
+   "gen": 4,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.7903888049779513
+  },
+  {
+   "gen": 5,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.8535140268921773
+  },
+  {
+   "gen": 6,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.7970816789142455
+  },
+  {
+   "gen": 7,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.7974020812957484
+  },
+  {
+   "gen": 8,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.8498461538461536
+  },
+  {
+   "gen": 9,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.8689230769230768
+  },
+  {
+   "gen": 10,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.853172984054109
+  },
+  {
+   "gen": 11,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.8775128205128203
+  },
+  {
+   "gen": 12,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.7443173839621412
+  },
+  {
+   "gen": 13,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.8131131517630649
+  },
+  {
+   "gen": 14,
+   "best_fit": 0.9261538461538461,
+   "mean_fit": 0.7825621965792504
+  }
+ ],
+ "protocol": "no-split",
+ "config": {
+  "population": 30,
+  "generations": 15,
+  "tournament_k": 3,
+  "p_crossover": 0.5,
+  "elitism": 2,
+  "max_depth": 6,
+  "complexity_lambda": 0.002,
+  "fit_fraction": 0.8,
+  "small_n_threshold": 50,
+  "n_strata": 5,
+  "version": "evolve-v1"
+ },
+ "chain": [
+  "6a38c8defe",
+  "b7084f57e7",
+  "fdf59c1fd7",
+  "8b90d7e6dd",
+  "1da3c7d8c7",
+  "d70666446c",
+  "8dbd0c1790",
+  "2275e35121",
+  "43664fb36d",
+  "d0ac121925",
+  "38af134b06",
+  "b8e01e4a92",
+  "e75ad3e75c",
+  "da7a8fcd5f",
+  "a783eb99e2",
+  "a156b0fa9e",
+  "e7a86ae661",
+  "6c99a41eb7",
+  "b9e7d543ea",
+  "645e392e7b",
+  "63665a0f86",
+  "a6b9c59e70",
+  "bac75a80d6",
+  "198e29d3f9",
+  "a3b0a79ee0"
+ ],
+ "warm_start": null,
+ "git_hash": "c54714e1a26b5b11cd35f858127884003474d065",
+ "timestamp": "2026-08-09T19:21:07.539826+00:00"
+}

@@ -1,0 +1,152 @@
+{
+ "tag": "A_N25_s2_warm",
+ "budget": 25,
+ "seed": 2,
+ "tree": "asum(rl1(log(G)))",
+ "tree_json": {
+  "op": "asum",
+  "children": [
+   {
+    "op": "rl1",
+    "children": [
+     {
+      "op": "log",
+      "children": [
+       {
+        "op": "G",
+        "children": []
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "terminals_used": [
+  "G"
+ ],
+ "selection_fitness": 0.8136964952922632,
+ "fit_rho": 0.8216964952922632,
+ "found_at_gen": 10,
+ "history": [
+  {
+   "gen": 0,
+   "best_fit": 0.7913845118058627,
+   "mean_fit": 0.21437015929772846
+  },
+  {
+   "gen": 1,
+   "best_fit": 0.7913845118058627,
+   "mean_fit": 0.4378609967778647
+  },
+  {
+   "gen": 2,
+   "best_fit": 0.7980792610308837,
+   "mean_fit": 0.5629323520888327
+  },
+  {
+   "gen": 3,
+   "best_fit": 0.7990017460672422,
+   "mean_fit": 0.5556805913093378
+  },
+  {
+   "gen": 4,
+   "best_fit": 0.7990017460672422,
+   "mean_fit": 0.6323960156186688
+  },
+  {
+   "gen": 5,
+   "best_fit": 0.8027720866240698,
+   "mean_fit": 0.6486495801060258
+  },
+  {
+   "gen": 6,
+   "best_fit": 0.8070036696990768,
+   "mean_fit": 0.7311760988759958
+  },
+  {
+   "gen": 7,
+   "best_fit": 0.8070036696990768,
+   "mean_fit": 0.571153040202475
+  },
+  {
+   "gen": 8,
+   "best_fit": 0.8070036696990768,
+   "mean_fit": 0.6243599083226569
+  },
+  {
+   "gen": 9,
+   "best_fit": 0.8116964952922632,
+   "mean_fit": 0.5669335251599447
+  },
+  {
+   "gen": 10,
+   "best_fit": 0.8136964952922632,
+   "mean_fit": 0.6119441019988637
+  },
+  {
+   "gen": 11,
+   "best_fit": 0.8136964952922632,
+   "mean_fit": 0.6471134955114609
+  },
+  {
+   "gen": 12,
+   "best_fit": 0.8136964952922632,
+   "mean_fit": 0.4285850566525236
+  },
+  {
+   "gen": 13,
+   "best_fit": 0.8136964952922632,
+   "mean_fit": 0.5338229850469137
+  },
+  {
+   "gen": 14,
+   "best_fit": 0.8136964952922632,
+   "mean_fit": 0.59168233580521
+  }
+ ],
+ "protocol": "no-split",
+ "config": {
+  "population": 30,
+  "generations": 15,
+  "tournament_k": 3,
+  "p_crossover": 0.5,
+  "elitism": 2,
+  "max_depth": 6,
+  "complexity_lambda": 0.002,
+  "fit_fraction": 0.8,
+  "small_n_threshold": 50,
+  "n_strata": 5,
+  "version": "evolve-v1"
+ },
+ "chain": [
+  "6bdb378727",
+  "1fbbbaca08",
+  "2377a31469",
+  "8b90d7e6dd",
+  "a3b0a79ee0",
+  "bc78ce29bf",
+  "0cafb9c198",
+  "6c99a41eb7",
+  "c752e267f6",
+  "eef7d230f5",
+  "bc432c6cfc",
+  "4bbcc4718f",
+  "c9068c90ed",
+  "1ffd9a9a66",
+  "be92dfe7d9",
+  "9858244829",
+  "d03ed2b012",
+  "8198040999",
+  "b0194cead4",
+  "00caf5510f",
+  "dc0d0d0126",
+  "b8e01e4a92",
+  "b4b0eadb34",
+  "4a691746eb",
+  "13fea7c9bc"
+ ],
+ "warm_start": "speech_zcp/results/evolved/nb201_N0_s2.json",
+ "git_hash": "c54714e1a26b5b11cd35f858127884003474d065",
+ "timestamp": "2026-08-09T19:31:51.530447+00:00"
+}

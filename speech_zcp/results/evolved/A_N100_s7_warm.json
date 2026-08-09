@@ -1,0 +1,227 @@
+{
+ "tag": "A_N100_s7_warm",
+ "budget": 100,
+ "seed": 7,
+ "tree": "asum(rsum(abs(W)))",
+ "tree_json": {
+  "op": "asum",
+  "children": [
+   {
+    "op": "rsum",
+    "children": [
+     {
+      "op": "abs",
+      "children": [
+       {
+        "op": "W",
+        "children": []
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "terminals_used": [
+  "W"
+ ],
+ "selection_fitness": 0.6596691729323308,
+ "fit_rho": 0.8146086182079533,
+ "found_at_gen": 4,
+ "history": [
+  {
+   "gen": 0,
+   "best_fit": 0.7559754100893614,
+   "mean_fit": 0.2341184340355815
+  },
+  {
+   "gen": 1,
+   "best_fit": 0.7559754100893614,
+   "mean_fit": 0.36339199845698594
+  },
+  {
+   "gen": 2,
+   "best_fit": 0.757033286451008,
+   "mean_fit": 0.5748101500898746
+  },
+  {
+   "gen": 3,
+   "best_fit": 0.8298968588842006,
+   "mean_fit": 0.6805391569178191
+  },
+  {
+   "gen": 4,
+   "best_fit": 0.8298968588842006,
+   "mean_fit": 0.7012357837163434
+  },
+  {
+   "gen": 5,
+   "best_fit": 0.8298968588842006,
+   "mean_fit": 0.6603907932373041
+  },
+  {
+   "gen": 6,
+   "best_fit": 0.8298968588842006,
+   "mean_fit": 0.6526594109837841
+  },
+  {
+   "gen": 7,
+   "best_fit": 0.8298968588842006,
+   "mean_fit": 0.5573442282195902
+  },
+  {
+   "gen": 8,
+   "best_fit": 0.8305187442639548,
+   "mean_fit": 0.6509867108046399
+  },
+  {
+   "gen": 9,
+   "best_fit": 0.8318548983670843,
+   "mean_fit": 0.5841283783597074
+  },
+  {
+   "gen": 10,
+   "best_fit": 0.8318548983670843,
+   "mean_fit": 0.5802119622352353
+  },
+  {
+   "gen": 11,
+   "best_fit": 0.8318548983670843,
+   "mean_fit": 0.6053005846064515
+  },
+  {
+   "gen": 12,
+   "best_fit": 0.8318548983670843,
+   "mean_fit": 0.6016019875475096
+  },
+  {
+   "gen": 13,
+   "best_fit": 0.8318548983670843,
+   "mean_fit": 0.6617532260062017
+  },
+  {
+   "gen": 14,
+   "best_fit": 0.8318548983670843,
+   "mean_fit": 0.6477406781298133
+  }
+ ],
+ "protocol": "80/20",
+ "config": {
+  "population": 30,
+  "generations": 15,
+  "tournament_k": 3,
+  "p_crossover": 0.5,
+  "elitism": 2,
+  "max_depth": 6,
+  "complexity_lambda": 0.002,
+  "fit_fraction": 0.8,
+  "small_n_threshold": 50,
+  "n_strata": 5,
+  "version": "evolve-v1"
+ },
+ "chain": [
+  "bc78ce29bf",
+  "0cafb9c198",
+  "e9b9176ebe",
+  "32b77738ed",
+  "031746c865",
+  "bc432c6cfc",
+  "9f4a7c593b",
+  "2275e35121",
+  "0db1f6977a",
+  "e54f522fdf",
+  "a9311ec569",
+  "89e2fae40f",
+  "e75ad3e75c",
+  "f65b872f49",
+  "f3f06a0e6d",
+  "ca4dbf0e48",
+  "21df8e784a",
+  "ec889e6205",
+  "3e75179402",
+  "5139d3aadb",
+  "b893505a29",
+  "8dbd0c1790",
+  "79c809acd6",
+  "460e4a183c",
+  "b82aab85cf",
+  "9858244829",
+  "0b3f1bfd67",
+  "a35ae5c158",
+  "9881356e36",
+  "d66fdfeb17",
+  "c2a70c86cb",
+  "a6b9c59e70",
+  "03b0e9db20",
+  "c752e267f6",
+  "645e392e7b",
+  "71e4d91251",
+  "40889a961c",
+  "c3e6cb1828",
+  "8387d21409",
+  "c9cefa3f11",
+  "38af134b06",
+  "e7a86ae661",
+  "672c5e22fc",
+  "fbee839d22",
+  "1da3c7d8c7",
+  "9949dc7047",
+  "4587fb80b5",
+  "eabcd7ba34",
+  "b0194cead4",
+  "0629bfb729",
+  "a156b0fa9e",
+  "6da39feaa2",
+  "df3be12012",
+  "cb60a5e32e",
+  "d2648dad92",
+  "da6c0aa5ce",
+  "b5de68e75e",
+  "6330146d6b",
+  "4ac376c862",
+  "94d9be4312",
+  "334fe9f2c3",
+  "c3de52ab0c",
+  "050c70492e",
+  "e54de94eb2",
+  "56677b8b66",
+  "b18a7d647d",
+  "6a8e1cdee1",
+  "2377a31469",
+  "24b7bd9dda",
+  "de896ff456",
+  "88936928fe",
+  "dc7370eb45",
+  "bac75a80d6",
+  "6457f5341a",
+  "fb2c0ebde4",
+  "8ad3dc4476",
+  "b8e01e4a92",
+  "48c9fce212",
+  "37df2bffca",
+  "d0ac121925",
+  "596593b892",
+  "928cd95f04",
+  "8198040999",
+  "5d916f97c8",
+  "b42f7170e7",
+  "96c785a1f8",
+  "185e22512e",
+  "5e1f9ca921",
+  "198e29d3f9",
+  "3dc9f8b5a0",
+  "bb832ba80a",
+  "ac3156cda0",
+  "6c274d3a33",
+  "4a691746eb",
+  "c53b1818ba",
+  "5be7840ef3",
+  "8e3118edf4",
+  "2f13911375",
+  "c4ae51f3c6",
+  "2af5f9ecdb"
+ ],
+ "warm_start": "speech_zcp/results/evolved/nb201_N0_s7.json",
+ "git_hash": "c54714e1a26b5b11cd35f858127884003474d065",
+ "timestamp": "2026-08-09T19:36:54.002652+00:00"
+}
