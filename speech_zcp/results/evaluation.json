@@ -3938,7 +3938,7 @@
   "noise_ceiling_spearman": 0.9092,
   "n_boot": 10000,
   "boot_seed": 0,
-  "git_hash": "7378d3735804e7b8fb81ff29318cfe08ee0c32ab",
-  "timestamp": "2026-08-09T20:05:22.371980+00:00"
+  "git_hash": "3735f61e5fbfc6bb80c18794cd39c9ef4c594b94",
+  "timestamp": "2026-08-10T17:31:03.059704+00:00"
  }
 }
