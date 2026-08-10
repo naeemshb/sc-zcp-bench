@@ -1,0 +1,37 @@
+{
+ "100": {
+  "weights": 6,
+  "gradients": 1,
+  "activations": 0,
+  "time-axis": 1,
+  "matched-noise": 3
+ },
+ "200": {
+  "weights": 8,
+  "gradients": 0,
+  "activations": 0,
+  "time-axis": 0,
+  "matched-noise": 3
+ },
+ "25": {
+  "weights": 4,
+  "gradients": 3,
+  "activations": 0,
+  "time-axis": 2,
+  "matched-noise": 2
+ },
+ "50": {
+  "weights": 5,
+  "gradients": 2,
+  "activations": 0,
+  "time-axis": 2,
+  "matched-noise": 1
+ },
+ "0": {
+  "weights": 6,
+  "gradients": 8,
+  "activations": 2,
+  "time-axis": 0,
+  "matched-noise": 0
+ }
+}
