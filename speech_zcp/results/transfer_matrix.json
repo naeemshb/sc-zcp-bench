@@ -44,6 +44,118 @@
    0.7522961274122375
   ]
  ],
+ "speech_cells_with_cis": {
+  "std": {
+   "flops": {
+    "Atest": {
+     "rho": 0.5475412991330619,
+     "ci95": [
+      0.3227109135299928,
+      0.708307756674713
+     ]
+    },
+    "B": {
+     "rho": 0.8794884507308199,
+     "ci95": [
+      0.8368132836725483,
+      0.9096326291583576
+     ]
+    }
+   },
+   "nwot": {
+    "Atest": {
+     "rho": 0.47742988914058077,
+     "ci95": [
+      0.2411424772508135,
+      0.6586736392473942
+     ]
+    },
+    "B": {
+     "rho": 0.8636548075414286,
+     "ci95": [
+      0.820265192083116,
+      0.895193039304422
+     ]
+    }
+   },
+   "params": {
+    "Atest": {
+     "rho": 0.8326930474449478,
+     "ci95": [
+      0.6736520323518984,
+      0.9175680504550203
+     ]
+    },
+    "B": {
+     "rho": 0.7522961274122375,
+     "ci95": [
+      0.6767324929380175,
+      0.8126405305552269
+     ]
+    }
+   }
+  },
+  "evolved": {
+   "vision_N0": {
+    "Atest": {
+     "rho": 0.7150547453500291,
+     "seed_ci95": [
+      0.6558833627217457,
+      0.7742261279783125
+     ],
+     "n_seeds": 10
+    },
+    "B": {
+     "rho": 0.4575762121666481,
+     "seed_ci95": [
+      0.3127329917396018,
+      0.6024194325936945
+     ],
+     "n_seeds": 10
+    }
+   },
+   "speechA_N200": {
+    "Atest": {
+     "rho": 0.8243709191218676,
+     "seed_ci95": [
+      0.8023735055432222,
+      0.8463683327005129
+     ],
+     "n_seeds": 10
+    },
+    "B": {
+     "rho": 0.738789386077707,
+     "seed_ci95": [
+      0.7262745509648931,
+      0.751304221190521
+     ],
+     "n_seeds": 10
+    }
+   }
+  }
+ },
+ "atest_ci95_by_row": {
+  "evolved: vision (N=0)": [
+   0.6558833627217457,
+   0.7742261279783125
+  ],
+  "evolved: Space A (N=200)": [
+   0.8023735055432222,
+   0.8463683327005129
+  ],
+  "FLOPs": [
+   0.3227109135299928,
+   0.708307756674713
+  ],
+  "nwot": [
+   0.2411424772508135,
+   0.6586736392473942
+  ],
+  "#params": [
+   0.6736520323518984,
+   0.9175680504550203
+  ]
+ },
  "nb201_holdout_detail": {
   "vision_N0": {
    "rho": 0.8174691194735049,
@@ -57,5 +169,5 @@
   }
  },
  "ninapro_source": "NB-Suite-Zero precomputed (500-arch seed-0 sample)",
- "note": "evolved x NinaPro N/A: no raw statistics exist; evolved NB201 cells average only seeds without speech-only terminals (skipped counts in nb201_holdout_detail)"
+ "note": "evolved x NinaPro N/A: no raw statistics exist; evolved NB201 cells average only seeds without speech-only terminals (skipped counts in nb201_holdout_detail). A-test n=50: no A-test number travels without its CI (FEEDBACK.md P1.3)."
 }

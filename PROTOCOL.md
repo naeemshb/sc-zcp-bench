@@ -117,6 +117,9 @@ Evolution runs over cached tensors cost seconds per candidate; pop 30 × 15 gene
 
 **Search demo (compact block):** aging evolution over Space B using (i) evolved proxy, (ii) best standard proxy, (iii) #params, (iv) random — best-found ground-truth accuracy vs #queries, mean ± CI over ≥20 repetitions (pure lookups). Punchline sentence: best discovered model's accuracy@params, with search cost in CPU-minutes on commodity hardware, contextualized against ICASSP 2021/2022 training-based KWS-NAS (explicitly labeled different protocol/version — context, not baseline).
 
+**AMENDMENT (2026-08-10, per FEEDBACK.md P1.2) — protocol actually run:** aging evolution is not meaningful on a 200-arch tabular pool (mutations leave the trained set), so the demo is **proxy-rank-ordered querying**: architectures queried in descending proxy order, best-found ground-truth accuracy vs #queries; the random baseline is 1,000 shuffles with a 95% band (deterministic guides need no repetitions). Figure/caption language must match this amendment, not the original spec.
+**AMENDMENT (2026-08-10, per FEEDBACK.md P1.1) — `evolved_consensus` defined:** the modal N=200 elite formula `asum(rl1(W))` (independently reached by 6/10 cold seeds; artifact `results/evolved/A_N200_s1.json`). Selected by evolution's own convergence — no holdout data touched. Space-B Spearman 0.741 [bootstrap CI 0.663–0.803] (= the shared value of the six identical-formula seeds in evaluation.json). Any figure using it cites this definition; if Table 1 retains it, this is its row.
+
 **Bootstrap protocol:** percentile bootstrap over architectures, 10,000 resamples, for every correlation and P@k. Seeds and resample indices logged.
 
 ---

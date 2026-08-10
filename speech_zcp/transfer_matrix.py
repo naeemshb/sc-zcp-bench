@@ -80,17 +80,24 @@ def ninapro_cells(n_sample=500):
 
 
 def speech_cells():
+    """A-test cells carry CIs everywhere (FEEDBACK.md P1.3): fixed proxies use
+    evaluation.json's 10k bootstrap CI; evolved cells use t-based 95% seed
+    intervals. B cells get the same for free."""
     ev = json.load(open(os.path.join(RESULTS_DIR, "evaluation.json")))
     out = {"std": {}, "evolved": {}}
     for p in ["flops", "nwot", "params"]:
-        out["std"][p] = {c: ev["standard"][p][c]["spearman"] for c in ["Atest", "B"]}
+        out["std"][p] = {c: {"rho": ev["standard"][p][c]["spearman"],
+                             "ci95": ev["standard"][p][c]["ci95"]}
+                         for c in ["Atest", "B"]}
     for variant, budget in [("vision_N0", 0), ("speechA_N200", 200)]:
         for col in ["Atest", "B"]:
             rhos = [v[col]["spearman"] for k, v in ev["evolved"].items()
                     if v["budget"] == budget and not k.endswith("_warm")
                     and v[col].get("spearman") is not None]
+            mean, sd = float(np.mean(rhos)), float(np.std(rhos, ddof=1))
+            half = float(st.t.ppf(0.975, len(rhos) - 1) * sd / np.sqrt(len(rhos)))
             out["evolved"].setdefault(variant, {})[col] = {
-                "rho": float(np.mean(rhos)), "n_seeds": len(rhos)}
+                "rho": mean, "seed_ci95": [mean - half, mean + half], "n_seeds": len(rhos)}
     return out
 
 
@@ -110,12 +117,21 @@ def main():
     M[1] = [ev_nb["speechA_N200"]["rho"], np.nan,
             sp["evolved"]["speechA_N200"]["Atest"]["rho"], sp["evolved"]["speechA_N200"]["B"]["rho"]]
     for i, p in enumerate(["flops", "nwot", "params"]):
-        M[2 + i] = [std_nb[p], nina[p], sp["std"][p]["Atest"], sp["std"][p]["B"]]
+        M[2 + i] = [std_nb[p], nina[p], sp["std"][p]["Atest"]["rho"], sp["std"][p]["B"]["rho"]]
 
+    atest_cis = {
+        "evolved: vision (N=0)": sp["evolved"]["vision_N0"]["Atest"]["seed_ci95"],
+        "evolved: Space A (N=200)": sp["evolved"]["speechA_N200"]["Atest"]["seed_ci95"],
+        "FLOPs": sp["std"]["flops"]["Atest"]["ci95"],
+        "nwot": sp["std"]["nwot"]["Atest"]["ci95"],
+        "#params": sp["std"]["params"]["Atest"]["ci95"],
+    }
     art = {"rows": rows, "cols": cols, "matrix": M.tolist(),
+           "speech_cells_with_cis": sp, "atest_ci95_by_row": atest_cis,
            "nb201_holdout_detail": ev_nb, "ninapro_source": "NB-Suite-Zero precomputed (500-arch seed-0 sample)",
            "note": "evolved x NinaPro N/A: no raw statistics exist; evolved NB201 cells average only "
-                   "seeds without speech-only terminals (skipped counts in nb201_holdout_detail)"}
+                   "seeds without speech-only terminals (skipped counts in nb201_holdout_detail). "
+                   "A-test n=50: no A-test number travels without its CI (FEEDBACK.md P1.3)."}
     json.dump(art, open(os.path.join(RESULTS_DIR, "transfer_matrix.json"), "w"), indent=1)
 
     import matplotlib
@@ -136,8 +152,11 @@ def main():
     ax.set_yticks(range(5)); ax.set_yticklabels(rows, fontsize=8)
     ax.set_title("Transfer matrix: Spearman rho vs ground truth", fontsize=10)
     fig.colorbar(im, shrink=0.8)
-    fig.text(0.01, 0.01, "*NinaPro: NB-Suite-Zero precomputed scores (sEMG, non-vision); "
+    ci_txt = "; ".join(f"{r.split(':')[0].strip()} [{lo:.2f},{hi:.2f}]"
+                       for r, (lo, hi) in atest_cis.items())
+    fig.text(0.01, 0.035, "*NinaPro: NB-Suite-Zero precomputed scores (sEMG, non-vision); "
              "no raw statistics -> evolved rows n/a", fontsize=6.5)
+    fig.text(0.01, 0.005, f"A-test col 95% CIs (n=50): {ci_txt}", fontsize=6.5)
     fig.tight_layout()
     fig.savefig(os.path.join(FIG_DIR, "fig2_transfer_matrix.png"))
     print("\nrows x cols:")
