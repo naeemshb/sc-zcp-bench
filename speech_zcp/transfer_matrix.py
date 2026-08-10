@@ -154,9 +154,11 @@ def main():
     fig.colorbar(im, shrink=0.8)
     ci_txt = "; ".join(f"{r.split(':')[0].strip()} [{lo:.2f},{hi:.2f}]"
                        for r, (lo, hi) in atest_cis.items())
-    fig.text(0.01, 0.035, "*NinaPro: NB-Suite-Zero precomputed scores (sEMG, non-vision); "
+    fig.text(0.01, 0.05, "*NinaPro: NB-Suite-Zero precomputed scores (sEMG, non-vision); "
              "no raw statistics -> evolved rows n/a", fontsize=6.5)
-    fig.text(0.01, 0.005, f"A-test col 95% CIs (n=50): {ci_txt}", fontsize=6.5)
+    fig.text(0.01, 0.005,
+             f"A-test col 95% CIs (n=50) — evolved rows: t-based intervals over 10 seeds; "
+             f"proxy rows: 10k-bootstrap over architectures. {ci_txt}", fontsize=6.5, wrap=True)
     fig.tight_layout()
     fig.savefig(os.path.join(FIG_DIR, "fig2_transfer_matrix.png"))
     print("\nrows x cols:")
