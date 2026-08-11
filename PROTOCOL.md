@@ -133,6 +133,7 @@ Evolution runs over cached tensors cost seconds per candidate; pop 30 × 15 gene
 - [x] Licenses: zero-cost-nas (via mohsaied mirror; original 404) and NASLib both Apache-2.0; attribute in code headers, keep notices. *(2026-08-04)*
 - [ ] SC v2 12-class vs 35-class conventions; report exact split protocol in the paper. *(frozen protocol implemented in data_sc.py; write-up pending)*
 - [x] NB-ASR recovery re-check: still unavailable as of 2026-08-04 (repo deleted, mirrors code-only/empty, nothing on HF).
+- [x] NB-ASR download attempt (2026-08-10, exhaustive): all 8 release assets of tag v1.1.0 tried directly (404) and via Wayback (404); Wayback CDX index for releases/download/* is EMPTY — the binaries were never archived; recovery via archive is impossible. Gained: exact lost-asset inventory from the archived release page (snapshot 2022-04-01): nb-asr-e40-{1234,1235,1236}, e10-1234, e5-1234, info, bench-{gtx-1080ti,jetson-nano}-fp32 .pickle — cite this enumeration in the paper's footnote.
 
 ---
 
