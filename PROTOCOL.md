@@ -146,6 +146,18 @@ Evolution runs over cached tensors cost seconds per candidate; pop 30 × 15 gene
 
 ---
 
+## 9b. PRE-REGISTERED post-acceptance expansion (declared 2026-08-10, before any new data existed)
+
+**Trigger:** acceptance only (notification Jan 13, 2027). No number in the submitted paper depends on these sets; nothing here may influence the submission.
+
+**What:** (1) expand A-test from 50 to 200: 150 NEW Space-A architectures; (2) add a disjoint Space-B replication set of 200 NEW architectures. Both sampled by the FROZEN grammar v2.1 samplers, deduplicated by arch_id against ALL previously sampled architectures of their space (including rejected/capped ones is not required — arch_id disjointness against the released benchmark is), trained with the FROZEN recipe pilot-v2, seed 0, on the Mac (one overnight, ~350 models).
+
+**Seed streams (pinned now):** `random.Random("Atest-expansion-2027")` and `random.Random("B-replication-2027")`, consumed by the existing `sample_archs` machinery with rejection of already-released arch_ids.
+
+**Evaluation:** the frozen proxies and the ALREADY-COMMITTED evolved elites (no re-evolution, no re-selection, no new model choices of any kind) are scored on the new sets by `evaluate.py`, run once, same bootstrap protocol; results reported as REPLICATION columns in the camera-ready/arXiv version, labeled as such, whichever way they land. Any change to grammar, recipe, or elite set voids the replication claim.
+
+**Purpose:** shrinks A-test CIs from ±~0.13 to ±~0.06 and tests the headline findings (FLOPs-at-ceiling; specialization curve ordering) on data that did not exist at submission time.
+
 ## 10. Timeline (today: Aug 4)
 
 - **W1 (Aug 4–10):** §4 proxy suite + NB201 validation gate; `spaces.py` grammars; pilot (10+10 archs, both machines); launch full ground-truth sweep on PASS. §8 checks in parallel.
