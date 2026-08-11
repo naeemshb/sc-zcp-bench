@@ -134,6 +134,7 @@ Evolution runs over cached tensors cost seconds per candidate; pop 30 × 15 gene
 - [ ] SC v2 12-class vs 35-class conventions; report exact split protocol in the paper. *(frozen protocol implemented in data_sc.py; write-up pending)*
 - [x] NB-ASR recovery re-check: still unavailable as of 2026-08-04 (repo deleted, mirrors code-only/empty, nothing on HF).
 - [x] NB-ASR download attempt (2026-08-10, exhaustive): all 8 release assets of tag v1.1.0 tried directly (404) and via Wayback (404); Wayback CDX index for releases/download/* is EMPTY — the binaries were never archived; recovery via archive is impossible. Gained: exact lost-asset inventory from the archived release page (snapshot 2022-04-01): nb-asr-e40-{1234,1235,1236}, e10-1234, e5-1234, info, bench-{gtx-1080ti,jetson-nano}-fp32 .pickle — cite this enumeration in the paper's footnote.
+- [x] NB-ASR repo-state record (verified observations only; deletion history NOT asserted): front page 404 via API 2026-08-10 AND via HTML 2026-08-11; release page 404; 8/8 assets 404; Wayback CDX for the download path empty. An earlier claim of "front page live 2026-08-10" could not be reproduced on either date — discrepancy logged, weekly liveness monitor running through camera-ready (logs/nb_asr_liveness.log).
 
 ---
 
@@ -146,9 +147,9 @@ Evolution runs over cached tensors cost seconds per candidate; pop 30 × 15 gene
 
 ---
 
-## 9b. PRE-REGISTERED post-acceptance expansion (declared 2026-08-10, before any new data existed)
+## 9b. PRE-REGISTERED replication/expansion (declared 2026-08-10; SUPERSEDED 2026-08-11 by the revised plan — replication now runs PRE-submission)
 
-**Trigger:** acceptance only (notification Jan 13, 2027). No number in the submitted paper depends on these sets; nothing here may influence the submission.
+**AMENDMENT (2026-08-11, verbatim intent of the revised plan; committed before the first replication architecture was sampled):** the replication sets are trained NOW (target: sweeps done ~Aug 16–18, sealed evaluation by Aug 20), not post-acceptance. Everything else pinned on 2026-08-10 stands unchanged: seed streams `random.Random("Atest-expansion-2027")` (150 new A-test-rep archs) and `random.Random("B-replication-2027")` (200 new Space-B-rep archs); arch_id disjointness against the released benchmark; grammar v2.1 and recipe pilot-v2 UNCHANGED; statistics caches per §5; evaluated ONCE by evaluate.py after ALL replication training completes; reported as replication BESIDE the original sets, never merged. **Honesty clause:** if the tighter precision places FLOPs below the ceiling rather than at it — or weakens any headline claim — that is reported as-is and the manuscript wording updated. Artifacts: results/replication.json + delta table vs originals.
 
 **What:** (1) expand A-test from 50 to 200: 150 NEW Space-A architectures; (2) add a disjoint Space-B replication set of 200 NEW architectures. Both sampled by the FROZEN grammar v2.1 samplers, deduplicated by arch_id against ALL previously sampled architectures of their space (including rejected/capped ones is not required — arch_id disjointness against the released benchmark is), trained with the FROZEN recipe pilot-v2, seed 0, on the Mac (one overnight, ~350 models).
 
