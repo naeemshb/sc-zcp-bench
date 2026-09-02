@@ -20,6 +20,11 @@ results/replication.json + replication.md delta table. evaluation.json is
 never rewritten; the sets are never merged. --selfcheck re-runs the
 replication code path on the original Space B and asserts it reproduces
 evaluation.json (run before the sealed replication).
+
+--ceiling (PROTOCOL.md 9b-seeds): test-retest noise ceilings from seeds {0,1,2}
+for B, B_orig50, Atest, B_rep, A_rep -> results/noise_ceiling.json. Ground
+truth is never changed by extra seeds. --ceiling-selfcheck: B_orig50 must
+reproduce evaluation.json's 0.9092 (no file written).
 """
 
 import glob
@@ -37,7 +42,7 @@ from . import gp_engine as gp
 from . import spaces
 from .cache_stats import CACHE_DIR, fixed_speech_batch, load_arch
 from .evolve import RESULTS_DIR as EVOLVED_DIR
-from .evolve import a_pool_and_test, tree_from_json
+from .evolve import SPLITS_DIR, a_pool_and_test, tree_from_json
 from .proxies import ALL_PROXIES, compute_proxy
 
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
@@ -381,15 +386,152 @@ def main_replication():
                   f"+- {c['rep_std']:.3f} d={c['diff_mean']:+.3f} (n={c['n_seeds']})")
 
 
+# ---------------------------------------------------------------------------
+# Test-retest noise ceilings (PROTOCOL.md 9b-seeds, declared 2026-09-02)
+# ---------------------------------------------------------------------------
+SEEDS = (0, 1, 2)
+# set -> (gt dir, subset rule, comparator proxy for the supplementary paired gap)
+CEILING_SETS = {"B": ("B", None, "flops"), "B_orig50": ("B", "orig50", "flops"),
+                "Atest": ("A", "atest", "params"),
+                "B_rep": ("B_rep", None, "flops"), "A_rep": ("A_rep", None, "params")}
+DECLARED_N = {"B": 200, "B_orig50": 50, "Atest": 50, "B_rep": 200, "A_rep": 150}
+PROXY_SCORE_TAG = {"B": "B", "B_orig50": "B", "Atest": "Atest", "B_rep": "B_rep", "A_rep": "A_rep"}
+
+
+def _seed_accs(gt_dir: str) -> dict:
+    """arch_id -> {seed: test_acc} over every seed file in results/gt_<dir>/."""
+    out = {}
+    for f in glob.glob(os.path.join(RESULTS_DIR, f"gt_{gt_dir}", "*.json")):
+        r = json.load(open(f))
+        out.setdefault(r["arch_id"], {})[r["seed"]] = r["test_acc"]
+    return out
+
+
+def _canonical_order(gt_dir: str, sub) -> list[str]:
+    """Content-defined architecture order (never filesystem order) so the seeded
+    bootstrap reproduces on any machine: sample_archs position (== sweep index)
+    for the released spaces, the sealed A-test list, or the replication split."""
+    if sub == "atest":
+        return list(a_pool_and_test()[1])
+    if gt_dir in ("A", "B"):
+        order = [spaces.arch_id(c) for c in spaces.sample_archs(gt_dir, 250 if gt_dir == "A" else 200)]
+        return order[:50] if sub == "orig50" else order
+    return list(json.load(open(os.path.join(SPLITS_DIR, f"replication_{gt_dir}.json")))["arch_ids"])
+
+
+def _mean_pairwise(M: np.ndarray, pairs) -> float:
+    return float(np.mean([st.spearmanr(M[:, i], M[:, j]).statistic for i, j in pairs]))
+
+
+def ceiling_block(A: np.ndarray, comp=None) -> dict:
+    """A: (n_arch, n_seed) test accuracies, canonical arch order. Ceiling = mean
+    pairwise Spearman across seeds; percentile bootstrap over architectures
+    (N_BOOT, BOOT_SEED). comp: optional comparator proxy scores in the same
+    order -> supplementary paired-bootstrap CI of ceiling - Spearman(comp,
+    seed-0 acc) using identical resamples for both terms."""
+    pairs = list(itertools.combinations(range(A.shape[1]), 2))
+    rng = np.random.default_rng(BOOT_SEED)
+    idx = rng.integers(0, len(A), size=(N_BOOT, len(A)))
+    boots = np.array([_mean_pairwise(A[idx[b]], pairs) for b in range(N_BOOT)])
+    lo, hi = np.nanpercentile(boots, [2.5, 97.5])
+    out = {"spearman": _mean_pairwise(A, pairs), "ci95": [float(lo), float(hi)], "n": int(len(A)),
+           "pairwise": {f"{i}-{j}": float(st.spearmanr(A[:, i], A[:, j]).statistic) for i, j in pairs},
+           "seed_std_median_pts": float(np.median(A.std(axis=1)) * 100)}  # ddof=0: the paper's 0.43 pts
+    if comp is not None:
+        comp_rho = float(st.spearmanr(comp, A[:, 0]).statistic)
+        gaps = np.array([boots[b] - st.spearmanr(comp[idx[b]], A[idx[b], 0]).statistic for b in range(N_BOOT)])
+        glo, ghi = np.nanpercentile(gaps, [2.5, 97.5])
+        out["paired_gap"] = {"comparator_spearman": comp_rho, "gap": out["spearman"] - comp_rho,
+                             "ci95": [float(glo), float(ghi)],
+                             "frac_resamples_gap_le_0": float(np.mean(gaps <= 0))}
+    return out
+
+
+def noise_ceilings(write: bool = True) -> dict:
+    out_path = os.path.join(RESULTS_DIR, "noise_ceiling.json")
+    if write and os.path.exists(out_path):
+        raise SystemExit(f"{out_path} exists: the ceiling is computed once (9b-seeds); delete it deliberately to recompute")
+    ev = json.load(open(os.path.join(RESULTS_DIR, "evaluation.json")))
+    rep_path = os.path.join(RESULTS_DIR, "replication.json")
+    rep = json.load(open(rep_path)) if os.path.exists(rep_path) else None
+    results = {}
+    for name, (gt_dir, sub, comparator) in CEILING_SETS.items():
+        accs = _seed_accs(gt_dir)
+        ids = [a for a in _canonical_order(gt_dir, sub) if a in accs and all(s in accs[a] for s in SEEDS)]
+        ok = [a for a in ids if all(isinstance(accs[a][s], (int, float)) and np.isfinite(accs[a][s]) for s in SEEDS)]
+        dropped = len(ids) - len(ok)
+        if len(ok) < 10:
+            results[name] = {"spearman": None, "n": len(ok), "declared_n": DECLARED_N[name],
+                             "n_dropped_nonfinite": dropped, "note": "fewer than 10 archs with all 3 seeds"}
+            print(f"ceiling {name:9s} n={len(ok):3d}/{DECLARED_N[name]} (incomplete)", flush=True)
+            continue
+        A = np.array([[accs[a][s] for s in SEEDS] for a in ok], dtype=float)
+        comp = None
+        sp = os.path.join(RESULTS_DIR, f"proxy_scores_{PROXY_SCORE_TAG[name]}.json")
+        if os.path.exists(sp):
+            scores = json.load(open(sp))[comparator]
+            if all(a in scores for a in ok):
+                comp = np.array([scores[a] for a in ok], dtype=float)
+        r = results[name] = ceiling_block(A, comp)
+        r.update({"declared_n": DECLARED_N[name], "n_dropped_nonfinite": dropped,
+                  "comparator": comparator if comp is not None else None})
+        g = r.get("paired_gap")
+        print(f"ceiling {name:9s} n={r['n']:3d}/{DECLARED_N[name]} rho={r['spearman']:.4f} "
+              f"ci=[{r['ci95'][0]:.3f}, {r['ci95'][1]:.3f}] seed_std_med={r['seed_std_median_pts']:.2f}pts"
+              + (f" | {comparator} {g['comparator_spearman']:.3f} gap {g['gap']:+.3f} "
+                 f"[{g['ci95'][0]:+.3f}, {g['ci95'][1]:+.3f}]" if g else ""), flush=True)
+        # cross-check: the comparator's full-set Spearman must equal the sealed artifacts
+        ref = None
+        if name == "B" and r["n"] == 200:
+            ref = ev["standard"][comparator]["B"]["spearman"]
+        elif name == "B_rep" and r["n"] == 200 and rep:
+            ref = rep["standard"][comparator]["B_rep"]["spearman"]
+        if ref is not None and g:
+            same = abs(g["comparator_spearman"] - ref) < 1e-9
+            print(f"  cross-check {name}: {comparator} rho {g['comparator_spearman']:.4f} vs sealed {ref:.4f} -> "
+                  f"{'OK' if same else 'MISMATCH'}", flush=True)
+            if not same:
+                raise SystemExit(f"{name}: comparator scores misaligned with sealed artifact")
+    orig = ev["meta"]["noise_ceiling_spearman"]
+    ok_ = results["B_orig50"].get("spearman") is not None and abs(results["B_orig50"]["spearman"] - orig) < 5e-5
+    print(f"selfcheck: B_orig50 rho {results['B_orig50'].get('spearman')} vs evaluation.json {orig} -> "
+          f"{'OK' if ok_ else 'MISMATCH'}", flush=True)
+    if not ok_:
+        raise SystemExit("ceiling selfcheck FAILED")
+    if write:
+        results["meta"] = {
+            "definition": "mean of pairwise Spearman over seeds (0,1,2) of test_acc; percentile bootstrap over archs",
+            "ordering": "sample_archs position (A/B; orig50 = first 50), sealed A-test list (Atest), "
+                        "replication split arch_ids (A_rep/B_rep) - never filesystem order",
+            "seed_std_convention": "median over archs of np.std(test_acc over 3 seeds, ddof=0) x 100",
+            "paired_gap": "supplementary: ceiling - Spearman(comparator, seed-0 acc), identical resamples; "
+                          "reported, not deciding (PROTOCOL.md 9b-seeds decision pairing)",
+            "provenance": "B_orig50 reproduces the 0.9092 literal in evaluation.json meta",
+            "seeds": list(SEEDS), "n_boot": N_BOOT, "boot_seed": BOOT_SEED, "declared_n": DECLARED_N,
+            "ground_truth_note": "all proxy/evolved correlations use seed-0 accuracies only; extra seeds estimate ceilings",
+            "git_hash": git_hash(), "timestamp": datetime.now(timezone.utc).isoformat()}
+        json.dump(results, open(out_path, "w"), indent=1)
+        print(f"saved -> {out_path}")
+    return results
+
+
 if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--replication", action="store_true",
-                    help="9b: score frozen rankers on A_rep/B_rep -> results/replication.json")
-    ap.add_argument("--selfcheck", action="store_true",
-                    help="replication code path must reproduce evaluation.json on original B")
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument("--replication", action="store_true",
+                   help="9b: score frozen rankers on A_rep/B_rep -> results/replication.json")
+    g.add_argument("--selfcheck", action="store_true",
+                   help="replication code path must reproduce evaluation.json on original B")
+    g.add_argument("--ceiling", action="store_true",
+                   help="9b-seeds: test-retest ceilings -> results/noise_ceiling.json (run once)")
+    g.add_argument("--ceiling-selfcheck", action="store_true",
+                   help="B_orig50 must reproduce 0.9092; writes nothing")
     args = ap.parse_args()
     if args.selfcheck:
         raise SystemExit(0 if selfcheck() else 1)
+    if args.ceiling or args.ceiling_selfcheck:
+        noise_ceilings(write=args.ceiling)
+        raise SystemExit(0)
     main_replication() if args.replication else main()

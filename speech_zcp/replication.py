@@ -13,6 +13,9 @@ Usage:
   .venv/bin/python -m speech_zcp.replication --sample          # write splits/
   .venv/bin/python -m speech_zcp.replication --train A_rep --device mps
   .venv/bin/python -m speech_zcp.replication --train B_rep --device mps
+  # 9b-seeds (2026-09-02): ceiling seeds only; ground truth stays seed 0.
+  .venv/bin/python -m speech_zcp.replication --train B_rep --seed 1 --device mps
+  .venv/bin/python -m speech_zcp.replication --train Atest --seed 1 --device mps  # -> results/gt_A/
 """
 
 import argparse
@@ -64,21 +67,45 @@ def write_splits():
         print(f"{name}: {len(cfgs)} archs -> {path}")
 
 
-def train_rep(name: str, device: str, data_root: str = "data"):
-    split = json.load(open(os.path.join(SPLITS_DIR, f"replication_{name}.json")))
+def _atest_configs() -> list[dict]:
+    """The 50 sealed A-test archs (splits/a_pool_test.json), configs from their
+    seed-0 ground-truth files, in A-test list order."""
+    test_ids = json.load(open(os.path.join(SPLITS_DIR, "a_pool_test.json")))["test"]
+    cfgs = {}
+    for f in os.listdir(os.path.join(RESULTS_DIR, "gt_A")):
+        if f.endswith("_s0.json"):
+            r = json.load(open(os.path.join(RESULTS_DIR, "gt_A", f)))
+            cfgs[r["arch_id"]] = r["config"]
+    return [cfgs[a] for a in test_ids]
+
+
+def train_rep(name: str, device: str, data_root: str = "data", seed: int = 0):
+    """name in REP_SPECS -> results/gt_<name>/; name == "Atest" -> results/gt_A/
+    (the A-test archs live in the released Space-A set). seed != 0 is the
+    9b-seeds ceiling expansion: extra seeds never replace seed-0 ground truth."""
+    if name == "Atest":
+        configs, out_dir = _atest_configs(), os.path.join(RESULTS_DIR, "gt_A")
+        # the arch's position in the released Space-A sample (== its sweep index)
+        sample_pos = {spaces.arch_id(c): i for i, c in enumerate(spaces.sample_archs("A", 250))}
+    else:
+        split = json.load(open(os.path.join(SPLITS_DIR, f"replication_{name}.json")))
+        configs, out_dir = split["configs"], os.path.join(RESULTS_DIR, f"gt_{name}")
     data = {s: load_split(data_root, s) for s in ["train", "val", "test"]}
-    out_dir = os.path.join(RESULTS_DIR, f"gt_{name}")
     os.makedirs(out_dir, exist_ok=True)
-    for i, cfg in enumerate(split["configs"]):
+    for i, cfg in enumerate(configs):
         aid = spaces.arch_id(cfg)
-        out_path = os.path.join(out_dir, f"{aid}_s0.json")
+        out_path = os.path.join(out_dir, f"{aid}_s{seed}.json")
         if os.path.exists(out_path):
-            print(f"[{i}] {aid} skip (done)")
+            print(f"[{i}] {aid} s{seed} skip (done)")
             continue
-        res = train_one(cfg, data, device, seed=0)
-        res["sweep_index"] = i
+        res = train_one(cfg, data, device, seed=seed)
+        res["sweep_index"] = sample_pos[aid] if name == "Atest" else i
         res["replication_set"] = name
-        json.dump(res, open(out_path, "w"), indent=1)
+        if seed != 0:
+            res["seed_role"] = "ceiling-only (9b-seeds); ground truth stays seed 0"
+        tmp = out_path + ".tmp"  # atomic write: a crash mid-write must not leave a 'done' file
+        json.dump(res, open(tmp, "w"), indent=1)
+        os.replace(tmp, out_path)
         print(f"[{i}] {aid} val={res['val_acc']:.4f} test={res['test_acc']:.4f} "
               f"{res['wall_clock_s']:.0f}s", flush=True)
 
@@ -86,7 +113,8 @@ def train_rep(name: str, device: str, data_root: str = "data"):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sample", action="store_true")
-    ap.add_argument("--train", choices=list(REP_SPECS))
+    ap.add_argument("--train", choices=list(REP_SPECS) + ["Atest"])
+    ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="mps", choices=["cpu", "mps"])
     args = ap.parse_args()
     if args.device == "cpu":
@@ -94,7 +122,7 @@ def main():
     if args.sample:
         write_splits()
     elif args.train:
-        train_rep(args.train, args.device)
+        train_rep(args.train, args.device, seed=args.seed)
 
 
 if __name__ == "__main__":

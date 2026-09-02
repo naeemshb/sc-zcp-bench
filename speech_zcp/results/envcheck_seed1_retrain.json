@@ -1,0 +1,41 @@
+[
+ {
+  "sweep_index": 3,
+  "arch_id": "5b2a0b4f44",
+  "stored_test_acc": 0.8962765957446809,
+  "stored_val_acc": 0.9032185460274589,
+  "now_test_acc": 0.8962765957446809,
+  "now_val_acc": 0.9032185460274589,
+  "diff_test_pts": 0.0,
+  "stored_epochs": 15,
+  "now_epochs": 15,
+  "stored_date": "2026-08-05",
+  "secs": 12.113662958145142
+ },
+ {
+  "sweep_index": 25,
+  "arch_id": "847f31ec44",
+  "stored_test_acc": 0.7772094926350246,
+  "stored_val_acc": 0.7920324105334233,
+  "now_test_acc": 0.7772094926350246,
+  "now_val_acc": 0.7920324105334233,
+  "diff_test_pts": 0.0,
+  "stored_epochs": 15,
+  "now_epochs": 15,
+  "stored_date": "2026-08-05",
+  "secs": 5.621218919754028
+ },
+ {
+  "sweep_index": 41,
+  "arch_id": "a90a8bf426",
+  "stored_test_acc": 0.8960720130932897,
+  "stored_val_acc": 0.9002925950934053,
+  "now_test_acc": 0.8960720130932897,
+  "now_val_acc": 0.9002925950934053,
+  "diff_test_pts": 0.0,
+  "stored_epochs": 15,
+  "now_epochs": 15,
+  "stored_date": "2026-08-05",
+  "secs": 13.318730115890503
+ }
+]
