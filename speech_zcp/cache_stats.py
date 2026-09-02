@@ -20,6 +20,8 @@ Usage:
   .venv/bin/python -m speech_zcp.cache_stats --target A
   .venv/bin/python -m speech_zcp.cache_stats --target B
   .venv/bin/python -m speech_zcp.cache_stats --target nb201
+  .venv/bin/python -m speech_zcp.cache_stats --target A_rep   # 9b replication sets:
+  .venv/bin/python -m speech_zcp.cache_stats --target B_rep   # configs from splits/, same protocol
 """
 
 import argparse
@@ -47,6 +49,7 @@ PROTOCOL = {
 
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
+SPLITS_DIR = os.path.join(os.path.dirname(__file__), "splits")
 
 
 def fixed_speech_batch(root="data"):
@@ -128,7 +131,10 @@ def extract_nb201(arch_str: str, x, y) -> dict:
     return arrs
 
 
-def build_speech(space: str):
+def build_speech(space: str, archs: list[dict] | None = None):
+    """archs=None: the released benchmark list (sample_archs). Replication sets
+    pass their pre-registered configs explicitly; cache/index naming follows the
+    set name (cache/A_rep/, A_rep_index.json)."""
     out_dir = os.path.join(CACHE_DIR, space)
     os.makedirs(out_dir, exist_ok=True)
     x, y = fixed_speech_batch()
@@ -137,8 +143,9 @@ def build_speech(space: str):
     for f in glob.glob(os.path.join(RESULTS_DIR, f"gt_{space}", "*_s0.json")):
         r = json.load(open(f))
         accs[r["arch_id"]] = r["test_acc"]
-    n_arch = 250 if space == "A" else 200
-    archs = spaces.sample_archs(space, n_arch)
+    if archs is None:
+        n_arch = 250 if space == "A" else 200
+        archs = spaces.sample_archs(space, n_arch)
     for i, cfg in enumerate(archs):
         aid = spaces.arch_id(cfg)
         path = os.path.join(out_dir, f"{aid}.npz")
@@ -151,6 +158,13 @@ def build_speech(space: str):
     json.dump({"protocol": PROTOCOL, "archs": index},
               open(os.path.join(CACHE_DIR, f"{space}_index.json"), "w"))
     print(f"{space}: done, {len(index)} archs indexed")
+
+
+def build_speech_rep(name: str):
+    """PROTOCOL.md 9b replication sets: configs come from the committed split file
+    (pinned seed streams, disjoint from the release), cache-v1 protocol unchanged."""
+    split = json.load(open(os.path.join(SPLITS_DIR, f"replication_{name}.json")))
+    build_speech(name, split["configs"])
 
 
 def build_nb201_cache(n_sample: int = 500, holdout: bool = False, n_holdout: int = 200):
@@ -194,7 +208,7 @@ def load_arch(cache_name: str, arch_id: str) -> dict:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--target", required=True, choices=["A", "B", "nb201", "nb201_holdout"])
+    ap.add_argument("--target", required=True, choices=["A", "B", "nb201", "nb201_holdout", "A_rep", "B_rep"])
     ap.add_argument("--threads", type=int, default=8)
     args = ap.parse_args()
     torch.set_num_threads(args.threads)
@@ -202,6 +216,8 @@ def main():
         build_nb201_cache()
     elif args.target == "nb201_holdout":
         build_nb201_cache(holdout=True)
+    elif args.target.endswith("_rep"):
+        build_speech_rep(args.target)
     else:
         build_speech(args.target)
 
