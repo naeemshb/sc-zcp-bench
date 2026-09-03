@@ -1,0 +1,156 @@
+{
+ "B": {
+  "spearman": 0.9526221585974337,
+  "ci95": [
+   0.9216503669613179,
+   0.9721345710415632
+  ],
+  "n": 200,
+  "pairwise": {
+   "0-1": 0.9479665363375823,
+   "0-2": 0.9656129618837953,
+   "1-2": 0.9442869775709236
+  },
+  "seed_std_median_pts": 0.3910734015568556,
+  "paired_gap": {
+   "comparator_spearman": 0.8794884507308199,
+   "gap": 0.07313370786661377,
+   "ci95": [
+    0.035554812541354265,
+    0.11409326676568761
+   ],
+   "frac_resamples_gap_le_0": 0.0003
+  },
+  "declared_n": 200,
+  "n_dropped_nonfinite": 0,
+  "comparator": "flops"
+ },
+ "B_orig50": {
+  "spearman": 0.9092004375663668,
+  "ci95": [
+   0.7997879850585329,
+   0.9646546845153108
+  ],
+  "n": 50,
+  "pairwise": {
+   "0-1": 0.9017865729351002,
+   "0-2": 0.9403035262020732,
+   "1-2": 0.885511213561927
+  },
+  "seed_std_median_pts": 0.4258665753629536,
+  "paired_gap": {
+   "comparator_spearman": 0.9126425765065836,
+   "gap": -0.0034421389402168323,
+   "ci95": [
+    -0.09347196648384344,
+    0.07681219598270833
+   ],
+   "frac_resamples_gap_le_0": 0.4871
+  },
+  "declared_n": 50,
+  "n_dropped_nonfinite": 0,
+  "comparator": "flops"
+ },
+ "Atest": {
+  "spearman": 0.9701701732935729,
+  "ci95": [
+   0.9401535369298383,
+   0.9800491920897012
+  ],
+  "n": 50,
+  "pairwise": {
+   "0-1": 0.9704420489267128,
+   "0-2": 0.9716666269278822,
+   "1-2": 0.9684018440261237
+  },
+  "seed_std_median_pts": 0.674241246625439,
+  "paired_gap": {
+   "comparator_spearman": 0.8326930474449478,
+   "gap": 0.13747712584862515,
+   "ci95": [
+    0.05330805479566208,
+    0.27874068046049
+   ],
+   "frac_resamples_gap_le_0": 0.0
+  },
+  "declared_n": 50,
+  "n_dropped_nonfinite": 0,
+  "comparator": "params"
+ },
+ "B_rep": {
+  "spearman": 0.9305521110080126,
+  "ci95": [
+   0.8850015709184469,
+   0.9596590997896384
+  ],
+  "n": 200,
+  "pairwise": {
+   "0-1": 0.921849973283007,
+   "0-2": 0.9431822656865427,
+   "1-2": 0.9266240940544881
+  },
+  "seed_std_median_pts": 0.4356429454497899,
+  "paired_gap": {
+   "comparator_spearman": 0.8341543028048878,
+   "gap": 0.09639780820312482,
+   "ci95": [
+    0.038137996500392325,
+    0.1591745577846665
+   ],
+   "frac_resamples_gap_le_0": 0.0008
+  },
+  "declared_n": 200,
+  "n_dropped_nonfinite": 0,
+  "comparator": "flops"
+ },
+ "A_rep": {
+  "spearman": 0.978972334445761,
+  "ci95": [
+   0.9665764081997,
+   0.9842479661720347
+  ],
+  "n": 150,
+  "pairwise": {
+   "0-1": 0.9780359471888551,
+   "0-2": 0.9789081334420273,
+   "1-2": 0.9799729227064007
+  },
+  "seed_std_median_pts": 0.6811093317835343,
+  "paired_gap": {
+   "comparator_spearman": 0.8226070120967378,
+   "gap": 0.15636532234902323,
+   "ci95": [
+    0.11130486619024552,
+    0.21673503642825628
+   ],
+   "frac_resamples_gap_le_0": 0.0
+  },
+  "declared_n": 150,
+  "n_dropped_nonfinite": 0,
+  "comparator": "params"
+ },
+ "meta": {
+  "definition": "mean of pairwise Spearman over seeds (0,1,2) of test_acc; percentile bootstrap over archs",
+  "ordering": "sample_archs position (A/B; orig50 = first 50), sealed A-test list (Atest), replication split arch_ids (A_rep/B_rep) - never filesystem order",
+  "seed_std_convention": "median over archs of np.std(test_acc over 3 seeds, ddof=0) x 100",
+  "paired_gap": "supplementary: ceiling - Spearman(comparator, seed-0 acc), identical resamples; reported, not deciding (PROTOCOL.md 9b-seeds decision pairing)",
+  "provenance": "B_orig50 reproduces the 0.9092 literal in evaluation.json meta",
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "n_boot": 10000,
+  "boot_seed": 0,
+  "declared_n": {
+   "B": 200,
+   "B_orig50": 50,
+   "Atest": 50,
+   "B_rep": 200,
+   "A_rep": 150
+  },
+  "ground_truth_note": "all proxy/evolved correlations use seed-0 accuracies only; extra seeds estimate ceilings",
+  "git_hash": "412445e4287fe5d16307c478884a49787c0df31a",
+  "timestamp": "2026-09-03T00:26:53.528574+00:00"
+ }
+}

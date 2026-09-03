@@ -1,0 +1,67 @@
+{
+ "arch_id": "4461629d7b",
+ "config": {
+  "space": "B",
+  "width": 1.5,
+  "blocks": [
+   {
+    "kernel": 7,
+    "dilation": 1,
+    "stride": 1
+   },
+   {
+    "kernel": 3,
+    "dilation": 2,
+    "stride": 2
+   },
+   {
+    "kernel": 5,
+    "dilation": 2,
+    "stride": 2
+   },
+   {
+    "kernel": 13,
+    "dilation": 4,
+    "stride": 1
+   },
+   {
+    "kernel": 15,
+    "dilation": 2,
+    "stride": 2
+   },
+   {
+    "kernel": 13,
+    "dilation": 1,
+    "stride": 1
+   }
+  ]
+ },
+ "seed": 2,
+ "val_acc": 0.9239252757146073,
+ "test_acc": 0.9257364975450082,
+ "best_epoch": 13,
+ "epochs_run": 15,
+ "params": 1700340.0,
+ "flops": 27637488.0,
+ "wall_clock_s": 27.20336389541626,
+ "device": "mps",
+ "recipe": {
+  "optimizer": "adam",
+  "lr": 0.003,
+  "lr_schedule": "cosine",
+  "lr_min": 1e-05,
+  "weight_decay": 0.0,
+  "batch_size": 128,
+  "max_epochs": 15,
+  "early_stop_patience": 3,
+  "train_subsample": 10000,
+  "loss": "cross_entropy",
+  "recipe_version": "pilot-v2"
+ },
+ "git_hash": "412445e4287fe5d16307c478884a49787c0df31a",
+ "timestamp": "2026-09-02T19:37:26.551676+00:00",
+ "machine": "Naeems-MacBook-Pro.local",
+ "sweep_index": 33,
+ "replication_set": "B_rep",
+ "seed_role": "ceiling-only (9b-seeds); ground truth stays seed 0"
+}

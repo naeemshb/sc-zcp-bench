@@ -1,0 +1,52 @@
+{
+ "arch_id": "b516a4242b",
+ "config": {
+  "space": "A",
+  "stem_channels": 16,
+  "stem_stride": [
+   4,
+   2
+  ],
+  "blocks": [
+   {
+    "channels": 8,
+    "kernel": 1,
+    "stride": 2
+   },
+   {
+    "channels": 64,
+    "kernel": 7,
+    "stride": 1
+   }
+  ],
+  "pool": "max"
+ },
+ "seed": 2,
+ "val_acc": 0.8023857753769975,
+ "test_acc": 0.7974631751227496,
+ "best_epoch": 13,
+ "epochs_run": 15,
+ "params": 2692.0,
+ "flops": 451768.0,
+ "wall_clock_s": 5.553154945373535,
+ "device": "mps",
+ "recipe": {
+  "optimizer": "adam",
+  "lr": 0.003,
+  "lr_schedule": "cosine",
+  "lr_min": 1e-05,
+  "weight_decay": 0.0,
+  "batch_size": 128,
+  "max_epochs": 15,
+  "early_stop_patience": 3,
+  "train_subsample": 10000,
+  "loss": "cross_entropy",
+  "recipe_version": "pilot-v2"
+ },
+ "git_hash": "412445e4287fe5d16307c478884a49787c0df31a",
+ "timestamp": "2026-09-02T22:54:35.117212+00:00",
+ "machine": "Naeems-MacBook-Pro.local",
+ "sweep_index": 51,
+ "replication_set": "A_rep",
+ "seed_role": "ceiling-only (9b-seeds); ground truth stays seed 0"
+}
