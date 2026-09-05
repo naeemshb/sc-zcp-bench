@@ -228,9 +228,13 @@ def main():
 
 
 # ---------------------------------------------------------------------------
-# Pre-registered replication (PROTOCOL.md 9b)
+# Pre-registered replication (PROTOCOL.md 9b, 9b-rep2)
 # ---------------------------------------------------------------------------
-REP_SETS = {"B_rep": "B", "A_rep": "Atest"}  # replication set -> original column it replicates
+# replication set -> original column it replicates
+REP_SETS = {"B_rep": "B", "A_rep": "Atest"}
+REP2_SETS = {"B_rep2": "B", "A_rep2": "Atest"}
+# pooled sets (declared in 9b-rep2 before rep2 existed): members in order, original column
+REP2_POOLED = {"B_rep_pooled": (["B_rep", "B_rep2"], "B"), "A_rep_pooled": (["A_rep", "A_rep2"], "Atest")}
 
 
 def _load_set(name: str) -> dict:
@@ -239,13 +243,37 @@ def _load_set(name: str) -> dict:
     ids = sorted(index["archs"], key=lambda a: index["archs"][a]["i"])
     return {"ids": ids, "accs": [gt[a]["test_acc"] for a in ids],
             "flops": [gt[a]["flops"] for a in ids],
-            "cfgs": {a: gt[a]["config"] for a in ids}}
+            "cfgs": {a: gt[a]["config"] for a in ids}, "members": [name]}
+
+
+def _load_pooled(members: list[str]) -> dict:
+    parts = [_load_set(m) for m in members]
+    return {"ids": sum((p["ids"] for p in parts), []), "accs": sum((p["accs"] for p in parts), []),
+            "flops": sum((p["flops"] for p in parts), []),
+            "cfgs": {k: v for p in parts for k, v in p["cfgs"].items()}, "members": list(members)}
+
+
+def _std_scores_for(s: dict) -> dict:
+    """proxy -> {arch_id: score}; per member from the cached per-set files (union for pooled)."""
+    out = {p: {} for p in ALL_PROXIES}
+    for m in s["members"]:
+        sub = {a: s["cfgs"][a] for a in _load_set(m)["ids"]} if len(s["members"]) > 1 else s["cfgs"]
+        sc = standard_scores(m, list(sub), sub)
+        for p in ALL_PROXIES:
+            out[p].update(sc[p])
+    return out
+
+
+def _ctx_for(s: dict) -> list:
+    ctx = []
+    for m in s["members"]:
+        ctx += [load_ctx(m, a) for a in _load_set(m)["ids"]]
+    return ctx
 
 
 def _standard_blocks(name: str, s: dict) -> dict:
-    std = standard_scores(name, s["ids"], s["cfgs"])
-    return {p: metric_block([std[p][a] for a in s["ids"]], s["accs"], s["flops"])
-            for p in ALL_PROXIES}
+    std = _std_scores_for(s)
+    return {p: metric_block([std[p][a] for a in s["ids"]], s["accs"], s["flops"]) for p in ALL_PROXIES}
 
 
 def selfcheck() -> bool:
@@ -268,49 +296,61 @@ def _fmt(b) -> str:
     return f"{b['spearman']:.3f} [{b['ci95'][0]:.2f}, {b['ci95'][1]:.2f}]"
 
 
-def _write_replication_md(res: dict, orig: dict):
-    lines = ["# Replication (PROTOCOL.md 9b): frozen rankers on the pre-registered new sets", "",
+def _write_replication_md(res: dict, orig: dict, set_cols: dict, path: str, title: str):
+    """set_cols: ordered {set name: (original column key, header label, n)}"""
+    heads = ["Ranker"]
+    for okey in ["B", "Atest"]:
+        heads.append(f"{'B' if okey == 'B' else 'A-test'} orig (n={200 if okey == 'B' else 50})")
+        heads += [f"{lab} (n={n})" for name, (k, lab, n) in set_cols.items() if k == okey]
+    lines = [f"# {title}", "",
              "Bootstrap: 10k resamples, seed 0. Evolved rows: mean +- std over seeds. "
-             "Replication sets are reported beside the originals, never merged.", "",
-             "| Ranker | B orig (n=200) | B_rep (n=200) | d | A-test orig (n=50) | A_rep (n=150) | d |",
-             "|---|---|---|---|---|---|---|"]
+             "Replication sets are reported beside the originals, never merged with them.", "",
+             "| " + " | ".join(heads) + " |", "|" + "---|" * len(heads)]
     order = sorted(ALL_PROXIES, key=lambda p: -(orig["standard"][p]["B"].get("spearman") or -9))
     for p in order:
-        dB, dA = res["delta"][f"{p}:B->B_rep"], res["delta"][f"{p}:Atest->A_rep"]
-        fd = lambda d: "n/a" if d["diff"] is None else f"{d['diff']:+.3f}"
-        lines.append(f"| {p} | {_fmt(orig['standard'][p]['B'])} | {_fmt(res['standard'][p]['B_rep'])} | {fd(dB)} "
-                     f"| {_fmt(orig['standard'][p]['Atest'])} | {_fmt(res['standard'][p]['A_rep'])} | {fd(dA)} |")
-    keys = sorted({k.split(":")[0] for k in res["curve"]},
-                  key=lambda k: (int(k[1:].split("_")[0]), k))
+        row = [p]
+        for okey in ["B", "Atest"]:
+            row.append(_fmt(orig["standard"][p][okey]))
+            row += [_fmt(res["standard"][p][name]) for name, (k, _, _) in set_cols.items() if k == okey]
+        lines.append("| " + " | ".join(row) + " |")
+    keys = sorted({k.split(":")[0] for k in res["curve"]}, key=lambda k: (int(k[1:].split("_")[0]), k))
     for k in keys:
-        cB, cA = res["curve"].get(f"{k}:B->B_rep"), res["curve"].get(f"{k}:Atest->A_rep")
-        f = lambda c, side: "n/a" if not c else f"{c[side + '_mean']:.3f} +- {c[side + '_std']:.3f}"
-        fd = lambda c: "n/a" if not c else f"{c['diff_mean']:+.3f}"
-        lines.append(f"| evolved {k.replace('_', ' ')} | {f(cB, 'orig')} | {f(cB, 'rep')} | {fd(cB)} "
-                     f"| {f(cA, 'orig')} | {f(cA, 'rep')} | {fd(cA)} |")
-    lines += ["", f"Noise ceiling (original 50x3 seeds): {orig['meta']['noise_ceiling_spearman']} "
-              "- no replication seeds were pre-registered."]
-    open(os.path.join(RESULTS_DIR, "replication.md"), "w").write("\n".join(lines) + "\n")
+        row = [f"evolved {k.replace('_', ' ')}"]
+        for okey in ["B", "Atest"]:
+            c0 = next((c for kk, c in res["curve"].items() if kk.startswith(k + ":" + okey + "->")), None)
+            row.append("n/a" if not c0 else f"{c0['orig_mean']:.3f} +- {c0['orig_std']:.3f}")
+            for name, (kk_, _, _) in set_cols.items():
+                if kk_ != okey:
+                    continue
+                c = res["curve"].get(f"{k}:{okey}->{name}")
+                row.append("n/a" if not c else f"{c['rep_mean']:.3f} +- {c['rep_std']:.3f}")
+        lines.append("| " + " | ".join(row) + " |")
+    open(path, "w").write("\n".join(lines) + "\n")
 
 
-def main_replication():
+def run_replication(sets: dict, pooled: dict | None, out_name: str | None, title: str) -> dict:
+    """Score the frozen proxies and committed elites once on `sets` (name -> original
+    column) plus `pooled` (name -> (members, original column)); write
+    results/<out_name>.json/.md unless out_name is None (selfcheck mode)."""
     torch.set_num_threads(max(2, os.cpu_count() - 2))
-    if not selfcheck():
-        raise SystemExit("selfcheck FAILED - sealed replication not run")
     orig = json.load(open(os.path.join(RESULTS_DIR, "evaluation.json")))
-    sets = {name: _load_set(name) for name in REP_SETS}
+    loaded, okeys = {}, {}
+    for name, okey in sets.items():
+        loaded[name], okeys[name] = _load_set(name), okey
+    for name, (members, okey) in (pooled or {}).items():
+        loaded[name], okeys[name] = _load_pooled(members), okey
     results = {"standard": {}, "evolved": {}, "wilcoxon": {}, "delta": {}, "curve": {}}
 
-    # ---- standard proxies (live computation, frozen batch; cached per set) ----
-    std_blocks = {name: _standard_blocks(name, s) for name, s in sets.items()}
+    std_blocks = {name: _standard_blocks(name, s) for name, s in loaded.items()}
     for p in ALL_PROXIES:
-        results["standard"][p] = {name: std_blocks[name][p] for name in sets}
-        print(f"std {p:10s} B_rep rho={results['standard'][p]['B_rep'].get('spearman')}", flush=True)
+        results["standard"][p] = {name: std_blocks[name][p] for name in loaded}
+        print(f"std {p:10s} " + "  ".join(f"{n}={results['standard'][p][n].get('spearman'):.3f}"
+                                          if results['standard'][p][n].get('spearman') is not None else f"{n}=n/a"
+                                          for n in loaded), flush=True)
 
-    # ---- committed elites (cached statistics) ----
-    print("loading replication ctxs...", flush=True)
-    ctx = {name: [load_ctx(name, a) for a in s["ids"]] for name, s in sets.items()}
-    evolved_rhos = {}
+    print("loading ctxs...", flush=True)
+    ctx = {name: _ctx_for(s) for name, s in loaded.items()}
+    evolved_rhos = {name: {} for name in loaded}
     for f in sorted(glob.glob(os.path.join(EVOLVED_DIR, "*.json"))):
         r = json.load(open(f))
         tree = tree_from_json(r["tree_json"])
@@ -318,36 +358,40 @@ def main_replication():
         block = {"tree": r["tree"], "budget": r["budget"], "seed": r["seed"],
                  "warm": r["tag"].endswith("_warm") if "tag" in r else False,
                  "terminals_used": r["terminals_used"]}
-        for name, s in sets.items():
+        variant = "warm" if block["warm"] else ("vision" if r["budget"] == 0 else "cold")
+        for name, s in loaded.items():
             sc = gp.scores_for(tree, ctx[name])
             block[name] = (metric_block(sc, s["accs"], s["flops"]) if sc
                            else {"spearman": None, "note": f"invalid on {name}"})
+            rho = block[name].get("spearman")
+            if rho is not None:
+                evolved_rhos[name].setdefault((r["budget"], variant), []).append(rho)
         results["evolved"][tag] = block
-        variant = "warm" if tag.endswith("_warm") else ("vision" if r["budget"] == 0 else "cold")
-        rho = block["B_rep"].get("spearman")
-        if rho is not None:
-            evolved_rhos.setdefault((r["budget"], variant), []).append(rho)
-        print(f"evolved {tag:20s} B_rep rho={rho}", flush=True)
+        print(f"evolved {tag:20s} " + "  ".join(f"{n}={block[n].get('spearman'):.3f}"
+                                                if block[n].get('spearman') is not None else f"{n}=n/a" for n in loaded), flush=True)
 
-    # ---- Wilcoxon: evolved vs #params across seeds on B_rep ----
-    params_rho = results["standard"]["params"]["B_rep"]["spearman"]
-    for (budget, variant), rhos in sorted(evolved_rhos.items()):
-        if len(rhos) >= 6:
-            w = st.wilcoxon(np.array(rhos) - params_rho, alternative="greater")
-            results["wilcoxon"][f"N{budget}_{variant}_vs_params"] = {
-                "n_seeds": len(rhos), "mean_rho": float(np.mean(rhos)),
-                "params_rho": params_rho, "p_value": float(w.pvalue)}
+    # ---- Wilcoxon: evolved vs #params across seeds, on every Space-B-family set ----
+    for name in loaded:
+        if okeys[name] != "B":
+            continue
+        params_rho = results["standard"]["params"][name]["spearman"]
+        for (budget, variant), rhos in sorted(evolved_rhos[name].items()):
+            if len(rhos) >= 6:
+                w = st.wilcoxon(np.array(rhos) - params_rho, alternative="greater")
+                results["wilcoxon"][f"{name}:N{budget}_{variant}_vs_params"] = {
+                    "n_seeds": len(rhos), "mean_rho": float(np.mean(rhos)),
+                    "params_rho": params_rho, "p_value": float(w.pvalue)}
 
     # ---- delta vs originals ----
     for p in ALL_PROXIES:
-        for name, okey in REP_SETS.items():
+        for name, okey in okeys.items():
             o, n = orig["standard"][p][okey], results["standard"][p][name]
             ok = o.get("spearman") is not None and n.get("spearman") is not None
             results["delta"][f"{p}:{okey}->{name}"] = {
                 "orig": o.get("spearman"), "orig_ci95": o.get("ci95"),
                 "rep": n.get("spearman"), "rep_ci95": n.get("ci95"),
                 "diff": (n["spearman"] - o["spearman"]) if ok else None}
-    for name, okey in REP_SETS.items():
+    for name, okey in okeys.items():
         by = {}
         for tag, v in results["evolved"].items():
             key = (v["budget"], "warm" if v["warm"] else ("vision" if v["budget"] == 0 else "cold"))
@@ -363,60 +407,116 @@ def main_replication():
                 "diff_mean": float((n_ - o_).mean())}
 
     results["meta"] = {
-        "protocol": "PROTOCOL.md 9b: frozen proxies + committed elites scored once on the "
+        "protocol": "PROTOCOL.md 9b / 9b-rep2: frozen proxies + committed elites scored once on "
                     "pre-registered replication sets; reported beside the originals, never merged",
-        "sets": {name: {"n": len(sets[name]["ids"]), "replicates": okey} for name, okey in REP_SETS.items()},
+        "sets": {name: {"n": len(loaded[name]["ids"]), "replicates": okeys[name],
+                        "members": loaded[name]["members"]} for name in loaded},
         "noise_ceiling_spearman": orig["meta"]["noise_ceiling_spearman"],
-        "noise_ceiling_note": "original 50x3-seed estimate; no replication seeds were pre-registered",
+        "noise_ceiling_note": "see results/noise_ceiling.json for the seed-replicated ceilings",
         "original_evaluation_git_hash": orig["meta"]["git_hash"],
         "n_boot": N_BOOT, "boot_seed": BOOT_SEED, "git_hash": git_hash(),
         "timestamp": datetime.now(timezone.utc).isoformat()}
-    out = os.path.join(RESULTS_DIR, "replication.json")
-    json.dump(results, open(out, "w"), indent=1)
-    _write_replication_md(results, orig)
-    print(f"\nsaved -> {out}")
+    if out_name:
+        out = os.path.join(RESULTS_DIR, f"{out_name}.json")
+        if os.path.exists(out):
+            raise SystemExit(f"{out} exists: replication evaluations run once; delete it deliberately to recompute")
+        json.dump(results, open(out, "w"), indent=1)
+        cols = {name: (okeys[name], name.replace("_pooled", " pooled").replace("_", " "), len(loaded[name]["ids"]))
+                for name in loaded}
+        _write_replication_md(results, orig, cols, os.path.join(RESULTS_DIR, f"{out_name}.md"), title)
+        print(f"\nsaved -> {out}")
+        print("\n=== SUMMARY (Spearman) ===")
+        for name in loaded:
+            for p in ["flops", "nwot", "params"]:
+                d = results["delta"][f"{p}:{okeys[name]}->{name}"]
+                print(f"{name:13s} {p:7s} orig={d['orig']:.3f} rep={d['rep']:.3f} {[round(x, 3) for x in d['rep_ci95']]} d={d['diff']:+.3f}")
+            for k, c in sorted(results["curve"].items(), key=lambda kv: int(kv[0][1:].split("_")[0])):
+                if k.endswith(f"->{name}") and "_cold" in k or (k.endswith(f"->{name}") and "vision" in k):
+                    print(f"{name:13s} {k.split(':')[0]:11s} orig={c['orig_mean']:.3f} rep={c['rep_mean']:.3f} +- {c['rep_std']:.3f} d={c['diff_mean']:+.3f}")
+    return results
 
-    print("\n=== REPLICATION SUMMARY (B -> B_rep Spearman) ===")
-    for p in ["flops", "nwot", "params"]:
-        d = results["delta"][f"{p}:B->B_rep"]
-        print(f"{p:8s} orig={d['orig']:.3f} rep={d['rep']:.3f} {d['rep_ci95']} d={d['diff']:+.3f}")
-    for k, c in sorted(results["curve"].items(), key=lambda kv: int(kv[0][1:].split("_")[0])):
-        if k.endswith(":B->B_rep"):
-            print(f"{k.split(':')[0]:12s} orig={c['orig_mean']:.3f} rep={c['rep_mean']:.3f} "
-                  f"+- {c['rep_std']:.3f} d={c['diff_mean']:+.3f} (n={c['n_seeds']})")
+
+def main_replication():
+    if not selfcheck():
+        raise SystemExit("selfcheck FAILED - sealed replication not run")
+    run_replication(REP_SETS, None, "replication",
+                    "Replication (PROTOCOL.md 9b): frozen rankers on the pre-registered new sets")
+
+
+def replication_selfcheck() -> bool:
+    """The generalized code path re-run on {B_rep, A_rep} must reproduce replication.json
+    exactly (every standard and evolved rho + CI). Writes nothing."""
+    ref = json.load(open(os.path.join(RESULTS_DIR, "replication.json")))
+    got = run_replication(REP_SETS, None, None, "")
+    bad = []
+    for p in ALL_PROXIES:
+        for name in REP_SETS:
+            a, b = got["standard"][p][name], ref["standard"][p][name]
+            if a.get("spearman") != b.get("spearman") or a.get("ci95") != b.get("ci95"):
+                bad.append(f"std:{p}:{name}")
+    for tag, v in ref["evolved"].items():
+        for name in REP_SETS:
+            a, b = got["evolved"].get(tag, {}).get(name, {}), v[name]
+            if a.get("spearman") != b.get("spearman") or a.get("ci95") != b.get("ci95"):
+                bad.append(f"evolved:{tag}:{name}")
+    n_checked = len(ALL_PROXIES) * 2 + len(ref["evolved"]) * 2
+    print(f"replication-selfcheck: {n_checked - len(bad)}/{n_checked} blocks reproduce replication.json exactly"
+          + (f"  MISMATCH: {bad[:8]}" if bad else ""), flush=True)
+    return not bad
+
+
+def main_replication2():
+    if not selfcheck() or not replication_selfcheck():
+        raise SystemExit("selfcheck FAILED - sealed rep2 evaluation not run")
+    run_replication(REP2_SETS, REP2_POOLED, "replication2",
+                    "Second replication (PROTOCOL.md 9b-rep2): rep2 alone and pooled rep ∪ rep2")
 
 
 # ---------------------------------------------------------------------------
-# Test-retest noise ceilings (PROTOCOL.md 9b-seeds, declared 2026-09-02)
+# Test-retest noise ceilings (PROTOCOL.md 9b-seeds, declared 2026-09-02; 9b-rep2 --extend)
 # ---------------------------------------------------------------------------
 SEEDS = (0, 1, 2)
-# set -> (gt dir, subset rule, comparator proxy for the supplementary paired gap)
-CEILING_SETS = {"B": ("B", None, "flops"), "B_orig50": ("B", "orig50", "flops"),
-                "Atest": ("A", "atest", "params"),
-                "B_rep": ("B_rep", None, "flops"), "A_rep": ("A_rep", None, "params")}
-DECLARED_N = {"B": 200, "B_orig50": 50, "Atest": 50, "B_rep": 200, "A_rep": 150}
-PROXY_SCORE_TAG = {"B": "B", "B_orig50": "B", "Atest": "Atest", "B_rep": "B_rep", "A_rep": "A_rep"}
+# set -> dict(dirs=[gt dirs in order], sub=subset rule, comp=comparator proxy, tags=[proxy-score tags], n=declared n)
+CEILING_SETS = {
+    "B":        {"dirs": ["B"], "sub": None, "comp": "flops", "tags": ["B"], "n": 200},
+    "B_orig50": {"dirs": ["B"], "sub": "orig50", "comp": "flops", "tags": ["B"], "n": 50},
+    "Atest":    {"dirs": ["A"], "sub": "atest", "comp": "params", "tags": ["Atest"], "n": 50},
+    "B_rep":    {"dirs": ["B_rep"], "sub": None, "comp": "flops", "tags": ["B_rep"], "n": 200},
+    "A_rep":    {"dirs": ["A_rep"], "sub": None, "comp": "params", "tags": ["A_rep"], "n": 150},
+}
+CEILING_SETS_EXTEND = {  # 9b-rep2: appended by --ceiling --extend, existing blocks untouched
+    "B_rep2":       {"dirs": ["B_rep2"], "sub": None, "comp": "flops", "tags": ["B_rep2"], "n": 100},
+    "A_rep2":       {"dirs": ["A_rep2"], "sub": None, "comp": "params", "tags": ["A_rep2"], "n": 100},
+    "B_rep_pooled": {"dirs": ["B_rep", "B_rep2"], "sub": None, "comp": "flops", "tags": ["B_rep", "B_rep2"], "n": 300},
+    "A_rep_pooled": {"dirs": ["A_rep", "A_rep2"], "sub": None, "comp": "params", "tags": ["A_rep", "A_rep2"], "n": 250},
+}
 
 
-def _seed_accs(gt_dir: str) -> dict:
-    """arch_id -> {seed: test_acc} over every seed file in results/gt_<dir>/."""
+def _seed_accs(gt_dirs) -> dict:
+    """arch_id -> {seed: test_acc} over every seed file in results/gt_<dir>/ (dirs merged)."""
     out = {}
-    for f in glob.glob(os.path.join(RESULTS_DIR, f"gt_{gt_dir}", "*.json")):
-        r = json.load(open(f))
-        out.setdefault(r["arch_id"], {})[r["seed"]] = r["test_acc"]
+    for gt_dir in ([gt_dirs] if isinstance(gt_dirs, str) else gt_dirs):
+        for f in glob.glob(os.path.join(RESULTS_DIR, f"gt_{gt_dir}", "*.json")):
+            r = json.load(open(f))
+            out.setdefault(r["arch_id"], {})[r["seed"]] = r["test_acc"]
     return out
 
 
-def _canonical_order(gt_dir: str, sub) -> list[str]:
+def _canonical_order(gt_dirs, sub) -> list[str]:
     """Content-defined architecture order (never filesystem order) so the seeded
     bootstrap reproduces on any machine: sample_archs position (== sweep index)
-    for the released spaces, the sealed A-test list, or the replication split."""
+    for the released spaces, the sealed A-test list, or the replication split(s)
+    in member order."""
     if sub == "atest":
         return list(a_pool_and_test()[1])
-    if gt_dir in ("A", "B"):
-        order = [spaces.arch_id(c) for c in spaces.sample_archs(gt_dir, 250 if gt_dir == "A" else 200)]
-        return order[:50] if sub == "orig50" else order
-    return list(json.load(open(os.path.join(SPLITS_DIR, f"replication_{gt_dir}.json")))["arch_ids"])
+    order = []
+    for gt_dir in ([gt_dirs] if isinstance(gt_dirs, str) else gt_dirs):
+        if gt_dir in ("A", "B"):
+            o = [spaces.arch_id(c) for c in spaces.sample_archs(gt_dir, 250 if gt_dir == "A" else 200)]
+            order += o[:50] if sub == "orig50" else o
+        else:
+            order += list(json.load(open(os.path.join(SPLITS_DIR, f"replication_{gt_dir}.json")))["arch_ids"])
+    return order
 
 
 def _mean_pairwise(M: np.ndarray, pairs) -> float:
@@ -447,69 +547,97 @@ def ceiling_block(A: np.ndarray, comp=None) -> dict:
     return out
 
 
-def noise_ceilings(write: bool = True) -> dict:
-    out_path = os.path.join(RESULTS_DIR, "noise_ceiling.json")
-    if write and os.path.exists(out_path):
-        raise SystemExit(f"{out_path} exists: the ceiling is computed once (9b-seeds); delete it deliberately to recompute")
-    ev = json.load(open(os.path.join(RESULTS_DIR, "evaluation.json")))
-    rep_path = os.path.join(RESULTS_DIR, "replication.json")
-    rep = json.load(open(rep_path)) if os.path.exists(rep_path) else None
-    results = {}
-    for name, (gt_dir, sub, comparator) in CEILING_SETS.items():
-        accs = _seed_accs(gt_dir)
-        ids = [a for a in _canonical_order(gt_dir, sub) if a in accs and all(s in accs[a] for s in SEEDS)]
-        ok = [a for a in ids if all(isinstance(accs[a][s], (int, float)) and np.isfinite(accs[a][s]) for s in SEEDS)]
-        dropped = len(ids) - len(ok)
-        if len(ok) < 10:
-            results[name] = {"spearman": None, "n": len(ok), "declared_n": DECLARED_N[name],
-                             "n_dropped_nonfinite": dropped, "note": "fewer than 10 archs with all 3 seeds"}
-            print(f"ceiling {name:9s} n={len(ok):3d}/{DECLARED_N[name]} (incomplete)", flush=True)
-            continue
-        A = np.array([[accs[a][s] for s in SEEDS] for a in ok], dtype=float)
-        comp = None
-        sp = os.path.join(RESULTS_DIR, f"proxy_scores_{PROXY_SCORE_TAG[name]}.json")
+def _ceiling_for(name: str, spec: dict) -> dict:
+    accs = _seed_accs(spec["dirs"])
+    ids = [a for a in _canonical_order(spec["dirs"], spec["sub"]) if a in accs and all(s in accs[a] for s in SEEDS)]
+    ok = [a for a in ids if all(isinstance(accs[a][s], (int, float)) and np.isfinite(accs[a][s]) for s in SEEDS)]
+    dropped = len(ids) - len(ok)
+    if len(ok) < 10:
+        print(f"ceiling {name:13s} n={len(ok):3d}/{spec['n']} (incomplete)", flush=True)
+        return {"spearman": None, "n": len(ok), "declared_n": spec["n"], "n_dropped_nonfinite": dropped,
+                "note": "fewer than 10 archs with all 3 seeds"}
+    A = np.array([[accs[a][s] for s in SEEDS] for a in ok], dtype=float)
+    scores = {}
+    for tag in spec["tags"]:
+        sp = os.path.join(RESULTS_DIR, f"proxy_scores_{tag}.json")
         if os.path.exists(sp):
-            scores = json.load(open(sp))[comparator]
-            if all(a in scores for a in ok):
-                comp = np.array([scores[a] for a in ok], dtype=float)
-        r = results[name] = ceiling_block(A, comp)
-        r.update({"declared_n": DECLARED_N[name], "n_dropped_nonfinite": dropped,
-                  "comparator": comparator if comp is not None else None})
-        g = r.get("paired_gap")
-        print(f"ceiling {name:9s} n={r['n']:3d}/{DECLARED_N[name]} rho={r['spearman']:.4f} "
-              f"ci=[{r['ci95'][0]:.3f}, {r['ci95'][1]:.3f}] seed_std_med={r['seed_std_median_pts']:.2f}pts"
-              + (f" | {comparator} {g['comparator_spearman']:.3f} gap {g['gap']:+.3f} "
-                 f"[{g['ci95'][0]:+.3f}, {g['ci95'][1]:+.3f}]" if g else ""), flush=True)
-        # cross-check: the comparator's full-set Spearman must equal the sealed artifacts
-        ref = None
-        if name == "B" and r["n"] == 200:
-            ref = ev["standard"][comparator]["B"]["spearman"]
-        elif name == "B_rep" and r["n"] == 200 and rep:
-            ref = rep["standard"][comparator]["B_rep"]["spearman"]
-        if ref is not None and g:
-            same = abs(g["comparator_spearman"] - ref) < 1e-9
-            print(f"  cross-check {name}: {comparator} rho {g['comparator_spearman']:.4f} vs sealed {ref:.4f} -> "
-                  f"{'OK' if same else 'MISMATCH'}", flush=True)
-            if not same:
-                raise SystemExit(f"{name}: comparator scores misaligned with sealed artifact")
-    orig = ev["meta"]["noise_ceiling_spearman"]
-    ok_ = results["B_orig50"].get("spearman") is not None and abs(results["B_orig50"]["spearman"] - orig) < 5e-5
-    print(f"selfcheck: B_orig50 rho {results['B_orig50'].get('spearman')} vs evaluation.json {orig} -> "
-          f"{'OK' if ok_ else 'MISMATCH'}", flush=True)
-    if not ok_:
-        raise SystemExit("ceiling selfcheck FAILED")
+            scores.update(json.load(open(sp))[spec["comp"]])
+    comp = np.array([scores[a] for a in ok], dtype=float) if all(a in scores for a in ok) else None
+    r = ceiling_block(A, comp)
+    r.update({"declared_n": spec["n"], "n_dropped_nonfinite": dropped,
+              "comparator": spec["comp"] if comp is not None else None, "members": spec["dirs"]})
+    g = r.get("paired_gap")
+    print(f"ceiling {name:13s} n={r['n']:3d}/{spec['n']} rho={r['spearman']:.4f} "
+          f"ci=[{r['ci95'][0]:.3f}, {r['ci95'][1]:.3f}] seed_std_med={r['seed_std_median_pts']:.2f}pts"
+          + (f" | {spec['comp']} {g['comparator_spearman']:.3f} gap {g['gap']:+.3f} "
+             f"[{g['ci95'][0]:+.3f}, {g['ci95'][1]:+.3f}]" if g else ""), flush=True)
+    return r
+
+
+def _cross_check(name: str, r: dict, ev: dict, rep: dict | None, rep2: dict | None):
+    """The comparator's full-set Spearman must equal the sealed artifacts."""
+    g = r.get("paired_gap")
+    if not g or r["n"] != r["declared_n"]:
+        return
+    ref = None
+    if name == "B":
+        ref = ev["standard"][r["comparator"]]["B"]["spearman"]
+    elif name in ("B_rep", "A_rep") and rep:
+        ref = rep["standard"][r["comparator"]][name]["spearman"]
+    elif rep2 and name in rep2["standard"][r["comparator"]]:
+        ref = rep2["standard"][r["comparator"]][name]["spearman"]
+    if ref is None:
+        return
+    same = abs(g["comparator_spearman"] - ref) < 1e-9
+    print(f"  cross-check {name}: {r['comparator']} rho {g['comparator_spearman']:.4f} vs sealed {ref:.4f} -> "
+          f"{'OK' if same else 'MISMATCH'}", flush=True)
+    if not same:
+        raise SystemExit(f"{name}: comparator scores misaligned with sealed artifact")
+
+
+def noise_ceilings(write: bool = True, extend: bool = False) -> dict:
+    out_path = os.path.join(RESULTS_DIR, "noise_ceiling.json")
+    ev = json.load(open(os.path.join(RESULTS_DIR, "evaluation.json")))
+    _load = lambda n: json.load(open(os.path.join(RESULTS_DIR, n))) if os.path.exists(os.path.join(RESULTS_DIR, n)) else None
+    rep, rep2 = _load("replication.json"), _load("replication2.json")
+    if extend:
+        if not os.path.exists(out_path):
+            raise SystemExit("--extend needs an existing results/noise_ceiling.json")
+        results = json.load(open(out_path))
+        todo = {k: v for k, v in CEILING_SETS_EXTEND.items() if k not in results}
+        if not todo:
+            raise SystemExit("nothing to extend: all rep2 sets already present")
+    else:
+        if write and os.path.exists(out_path):
+            raise SystemExit(f"{out_path} exists: the ceiling is computed once (9b-seeds); use --extend for new sets")
+        results, todo = {}, CEILING_SETS
+    for name, spec in todo.items():
+        results[name] = _ceiling_for(name, spec)
+        _cross_check(name, results[name], ev, rep, rep2)
+    if not extend:
+        orig = ev["meta"]["noise_ceiling_spearman"]
+        ok_ = results["B_orig50"].get("spearman") is not None and abs(results["B_orig50"]["spearman"] - orig) < 5e-5
+        print(f"selfcheck: B_orig50 rho {results['B_orig50'].get('spearman')} vs evaluation.json {orig} -> "
+              f"{'OK' if ok_ else 'MISMATCH'}", flush=True)
+        if not ok_:
+            raise SystemExit("ceiling selfcheck FAILED")
     if write:
-        results["meta"] = {
-            "definition": "mean of pairwise Spearman over seeds (0,1,2) of test_acc; percentile bootstrap over archs",
-            "ordering": "sample_archs position (A/B; orig50 = first 50), sealed A-test list (Atest), "
-                        "replication split arch_ids (A_rep/B_rep) - never filesystem order",
-            "seed_std_convention": "median over archs of np.std(test_acc over 3 seeds, ddof=0) x 100",
-            "paired_gap": "supplementary: ceiling - Spearman(comparator, seed-0 acc), identical resamples; "
-                          "reported, not deciding (PROTOCOL.md 9b-seeds decision pairing)",
-            "provenance": "B_orig50 reproduces the 0.9092 literal in evaluation.json meta",
-            "seeds": list(SEEDS), "n_boot": N_BOOT, "boot_seed": BOOT_SEED, "declared_n": DECLARED_N,
-            "ground_truth_note": "all proxy/evolved correlations use seed-0 accuracies only; extra seeds estimate ceilings",
-            "git_hash": git_hash(), "timestamp": datetime.now(timezone.utc).isoformat()}
+        if extend:
+            results["meta"].setdefault("extended", []).append(
+                {"sets": list(todo), "git_hash": git_hash(), "timestamp": datetime.now(timezone.utc).isoformat()})
+        else:
+            results["meta"] = {
+                "definition": "mean of pairwise Spearman over seeds (0,1,2) of test_acc; percentile bootstrap over archs",
+                "ordering": "sample_archs position (A/B; orig50 = first 50), sealed A-test list (Atest), "
+                            "replication split arch_ids (rep sets, members in order) - never filesystem order",
+                "seed_std_convention": "median over archs of np.std(test_acc over 3 seeds, ddof=0) x 100",
+                "paired_gap": "supplementary: ceiling - Spearman(comparator, seed-0 acc), identical resamples; "
+                              "reported, not deciding (PROTOCOL.md 9b-seeds decision pairing)",
+                "provenance": "B_orig50 reproduces the 0.9092 literal in evaluation.json meta",
+                "seeds": list(SEEDS), "n_boot": N_BOOT, "boot_seed": BOOT_SEED,
+                "declared_n": {k: v["n"] for k, v in CEILING_SETS.items()},
+                "ground_truth_note": "all proxy/evolved correlations use seed-0 accuracies only; extra seeds estimate ceilings",
+                "git_hash": git_hash(), "timestamp": datetime.now(timezone.utc).isoformat()}
         json.dump(results, open(out_path, "w"), indent=1)
         print(f"saved -> {out_path}")
     return results
@@ -522,16 +650,31 @@ if __name__ == "__main__":
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--replication", action="store_true",
                    help="9b: score frozen rankers on A_rep/B_rep -> results/replication.json")
+    g.add_argument("--replication2", action="store_true",
+                   help="9b-rep2: rep2 alone + pooled rep∪rep2 -> results/replication2.json")
     g.add_argument("--selfcheck", action="store_true",
                    help="replication code path must reproduce evaluation.json on original B")
+    g.add_argument("--replication-selfcheck", action="store_true",
+                   help="generalized path must reproduce replication.json on {B_rep, A_rep}; writes nothing")
     g.add_argument("--ceiling", action="store_true",
                    help="9b-seeds: test-retest ceilings -> results/noise_ceiling.json (run once)")
     g.add_argument("--ceiling-selfcheck", action="store_true",
                    help="B_orig50 must reproduce 0.9092; writes nothing")
+    ap.add_argument("--extend", action="store_true",
+                    help="with --ceiling: append the 9b-rep2 sets to the existing artifact (existing blocks untouched)")
     args = ap.parse_args()
+    if args.extend and not args.ceiling:
+        ap.error("--extend requires --ceiling")
     if args.selfcheck:
         raise SystemExit(0 if selfcheck() else 1)
+    if args.replication_selfcheck:
+        raise SystemExit(0 if replication_selfcheck() else 1)
     if args.ceiling or args.ceiling_selfcheck:
-        noise_ceilings(write=args.ceiling)
+        noise_ceilings(write=args.ceiling, extend=args.extend)
         raise SystemExit(0)
-    main_replication() if args.replication else main()
+    if args.replication2:
+        main_replication2()
+    elif args.replication:
+        main_replication()
+    else:
+        main()
