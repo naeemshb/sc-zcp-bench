@@ -151,6 +151,136 @@
   },
   "ground_truth_note": "all proxy/evolved correlations use seed-0 accuracies only; extra seeds estimate ceilings",
   "git_hash": "412445e4287fe5d16307c478884a49787c0df31a",
-  "timestamp": "2026-09-03T00:26:53.528574+00:00"
+  "timestamp": "2026-09-03T00:26:53.528574+00:00",
+  "extended": [
+   {
+    "sets": [
+     "B_rep2",
+     "A_rep2",
+     "B_rep_pooled",
+     "A_rep_pooled"
+    ],
+    "git_hash": "1b35cf4c5b18d424a893e7f69bbbe163663216a8",
+    "timestamp": "2026-09-05T08:21:46.464155+00:00"
+   }
+  ]
+ },
+ "B_rep2": {
+  "spearman": 0.9505795295920558,
+  "ci95": [
+   0.9106361621734957,
+   0.9733278144433902
+  ],
+  "n": 100,
+  "pairwise": {
+   "0-1": 0.9668201935730383,
+   "0-2": 0.940617142445646,
+   "1-2": 0.9443012527574834
+  },
+  "seed_std_median_pts": 0.33241099027758025,
+  "paired_gap": {
+   "comparator_spearman": 0.8228054335707421,
+   "gap": 0.12777409602131373,
+   "ci95": [
+    0.06318634745769418,
+    0.21416014387726998
+   ],
+   "frac_resamples_gap_le_0": 0.0
+  },
+  "declared_n": 100,
+  "n_dropped_nonfinite": 0,
+  "comparator": "flops",
+  "members": [
+   "B_rep2"
+  ]
+ },
+ "A_rep2": {
+  "spearman": 0.9785695609693058,
+  "ci95": [
+   0.9583184560203841,
+   0.986544253024169
+  ],
+  "n": 100,
+  "pairwise": {
+   "0-1": 0.9745331477125437,
+   "0-2": 0.9743020447395297,
+   "1-2": 0.9868734904558438
+  },
+  "seed_std_median_pts": 0.72620918663171,
+  "paired_gap": {
+   "comparator_spearman": 0.818000708089783,
+   "gap": 0.16056885287952283,
+   "ci95": [
+    0.09075984123727218,
+    0.2557093903001193
+   ],
+   "frac_resamples_gap_le_0": 0.0
+  },
+  "declared_n": 100,
+  "n_dropped_nonfinite": 0,
+  "comparator": "params",
+  "members": [
+   "A_rep2"
+  ]
+ },
+ "B_rep_pooled": {
+  "spearman": 0.9391218440831431,
+  "ci95": [
+   0.90833687739786,
+   0.9596902482151383
+  ],
+  "n": 300,
+  "pairwise": {
+   "0-1": 0.939667191017798,
+   "0-2": 0.9426721074666912,
+   "1-2": 0.9350262337649405
+  },
+  "seed_std_median_pts": 0.4078465851369629,
+  "paired_gap": {
+   "comparator_spearman": 0.8382107021101112,
+   "gap": 0.10091114197303197,
+   "ci95": [
+    0.05964418549386871,
+    0.14580072036306216
+   ],
+   "frac_resamples_gap_le_0": 0.0
+  },
+  "declared_n": 300,
+  "n_dropped_nonfinite": 0,
+  "comparator": "flops",
+  "members": [
+   "B_rep",
+   "B_rep2"
+  ]
+ },
+ "A_rep_pooled": {
+  "spearman": 0.9803446550995819,
+  "ci95": [
+   0.9718230994402438,
+   0.9846727549797122
+  ],
+  "n": 250,
+  "pairwise": {
+   "0-1": 0.9791578584395983,
+   "0-2": 0.9784017842605364,
+   "1-2": 0.9834743225986112
+  },
+  "seed_std_median_pts": 0.6878820224161462,
+  "paired_gap": {
+   "comparator_spearman": 0.8209260281177428,
+   "gap": 0.15941862698183906,
+   "ci95": [
+    0.11808973396929782,
+    0.21000645741229187
+   ],
+   "frac_resamples_gap_le_0": 0.0
+  },
+  "declared_n": 250,
+  "n_dropped_nonfinite": 0,
+  "comparator": "params",
+  "members": [
+   "A_rep",
+   "A_rep2"
+  ]
  }
 }
