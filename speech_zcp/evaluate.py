@@ -643,6 +643,111 @@ def noise_ceilings(write: bool = True, extend: bool = False) -> dict:
     return results
 
 
+# ---------------------------------------------------------------------------
+# 9c-partial: signal beyond compute — partial Spearman controlling for log10 FLOPs
+# ---------------------------------------------------------------------------
+PARTIAL_SETS = ["B", "B_rep_pooled", "Atest", "A_rep_pooled"]
+
+
+def _load_partial_set(name: str) -> dict:
+    if name == "Atest":
+        gt = gt_map("A")
+        ids = list(a_pool_and_test()[1])
+        std = json.load(open(os.path.join(RESULTS_DIR, "proxy_scores_Atest.json")))
+        return {"ids": ids, "accs": [gt[a]["test_acc"] for a in ids], "flops": [gt[a]["flops"] for a in ids],
+                "std": std, "ctx": [load_ctx("A", a) for a in ids]}
+    s = _load_pooled(REP2_POOLED[name][0]) if name in REP2_POOLED else _load_set(name)
+    return {"ids": s["ids"], "accs": s["accs"], "flops": s["flops"], "std": _std_scores_for(s), "ctx": _ctx_for(s)}
+
+
+def partial_spearman(x, y, z) -> float:
+    """Pearson correlation of the residuals of rank(x) and rank(y) after regressing
+    each on rank(z) (average ranks for ties). NaN if x or y is degenerate."""
+    rx, ry, rz = (st.rankdata(np.asarray(v, dtype=float)) for v in (x, y, z))
+    rz = rz - rz.mean()
+    if not rz.any():
+        return float("nan")
+    def resid(r):
+        r = r - r.mean()
+        return r - rz * (r @ rz) / (rz @ rz)
+    ex, ey = resid(rx), resid(ry)
+    d = np.sqrt((ex @ ex) * (ey @ ey))
+    return float(ex @ ey / d) if d > 0 else float("nan")
+
+
+def _partial_block(scores, accs, logf, boot: bool) -> dict:
+    scores, accs, logf = (np.asarray(v, dtype=float) for v in (scores, accs, logf))
+    ok = np.isfinite(scores)
+    if ok.sum() < 0.9 * len(scores):
+        return {"partial": None, "note": f"only {int(ok.sum())}/{len(scores)} finite"}
+    sc, ac, lf = scores[ok], accs[ok], logf[ok]
+    out = {"partial": partial_spearman(sc, ac, lf), "n": int(ok.sum())}
+    if boot:
+        rng = np.random.default_rng(BOOT_SEED)
+        idx = rng.integers(0, len(sc), size=(N_BOOT, len(sc)))
+        b = np.array([partial_spearman(sc[i], ac[i], lf[i]) for i in idx])
+        lo, hi = np.nanpercentile(b, [2.5, 97.5])
+        out["ci95"] = [float(lo), float(hi)]
+    return out
+
+
+def partial_flops():
+    out_path = os.path.join(RESULTS_DIR, "partial_flops.json")
+    if os.path.exists(out_path):
+        raise SystemExit(f"{out_path} exists: computed once; delete deliberately to recompute")
+    torch.set_num_threads(max(2, os.cpu_count() - 2))
+    results = {"standard": {p: {} for p in ALL_PROXIES}, "evolved": {}, "evolved_by_budget": {}}
+    for name in PARTIAL_SETS:
+        s = _load_partial_set(name)
+        logf = np.log10(np.asarray(s["flops"], dtype=float))
+        for p in ALL_PROXIES:
+            results["standard"][p][name] = _partial_block([s["std"][p][a] for a in s["ids"]], s["accs"], logf, boot=True)
+        by = {}
+        for f in sorted(glob.glob(os.path.join(EVOLVED_DIR, "*.json"))):
+            r = json.load(open(f))
+            tag = r["tag"] + ("" if "warm" not in f or r["tag"].endswith("_warm") else "_warm")
+            if tag.endswith("_warm"):
+                continue  # cold seeds only, as in the tercile table
+            sc = gp.scores_for(tree_from_json(r["tree_json"]), s["ctx"])
+            blk = _partial_block(sc, s["accs"], logf, boot=False) if sc else {"partial": None, "note": "invalid"}
+            results["evolved"].setdefault(tag, {})[name] = blk
+            if blk.get("partial") is not None and np.isfinite(blk["partial"]):
+                by.setdefault(r["budget"], []).append(blk["partial"])
+        for N, v in by.items():
+            results["evolved_by_budget"].setdefault(f"N{N}", {})[name] = {
+                "mean": float(np.mean(v)), "std": float(np.std(v)), "n_seeds": len(v)}
+        print(f"{name:13s} n={len(s['ids'])}  " + "  ".join(
+            f"{p}={results['standard'][p][name]['partial']:+.2f}" for p in ["nwot", "params", "synflow", "zen"])
+              + "  evolvedN200=" + f"{results['evolved_by_budget'].get('N200', {}).get(name, {}).get('mean', float('nan')):+.2f}", flush=True)
+    results["meta"] = {
+        "statistic": "partial Spearman: Pearson correlation of rank residuals after regressing rank(score) and "
+                     "rank(test_acc) on rank(log10 FLOPs); FLOPs itself is degenerate (NaN)",
+        "standard_ci": "10k percentile bootstrap over architectures, seed 0, canonical order",
+        "evolved": "cold seeds, per-seed point estimates; evolved_by_budget = mean/std over seeds (no bootstrap)",
+        "sets": PARTIAL_SETS, "n_boot": N_BOOT, "boot_seed": BOOT_SEED,
+        "git_hash": git_hash(), "timestamp": datetime.now(timezone.utc).isoformat()}
+    json.dump(results, open(out_path, "w"), indent=1)
+    # markdown
+    hdr = {"B": "Space B (n=200)", "B_rep_pooled": "B pooled rep (n=300)", "Atest": "A-test (n=50)", "A_rep_pooled": "A pooled rep (n=250)"}
+    lines = ["# 9c-partial: partial Spearman with test accuracy, controlling for log10 FLOPs", "",
+             "Fixed rankers: [10k-bootstrap 95% CI]. Evolved: mean ± seed spread (cold seeds). FLOPs itself is n/a by construction.", "",
+             "| Ranker | " + " | ".join(hdr[n] for n in PARTIAL_SETS) + " |", "|---|" + "---|" * len(PARTIAL_SETS)]
+    order = sorted(ALL_PROXIES, key=lambda p: -(results["standard"][p]["B"].get("partial") if results["standard"][p]["B"].get("partial") is not None and np.isfinite(results["standard"][p]["B"]["partial"]) else -9))
+    for p in order:
+        cells = []
+        for n in PARTIAL_SETS:
+            b = results["standard"][p][n]
+            cells.append("n/a" if b.get("partial") is None or not np.isfinite(b["partial"]) else f"{b['partial']:+.2f} [{b['ci95'][0]:+.2f}, {b['ci95'][1]:+.2f}]")
+        lines.append(f"| {p} | " + " | ".join(cells) + " |")
+    for N in [0, 25, 50, 100, 200]:
+        cells = []
+        for n in PARTIAL_SETS:
+            c = results["evolved_by_budget"].get(f"N{N}", {}).get(n)
+            cells.append("n/a" if not c else f"{c['mean']:+.2f} ± {c['std']:.2f}")
+        lines.append(f"| evolved N={N} | " + " | ".join(cells) + " |")
+    open(os.path.join(RESULTS_DIR, "partial_flops.md"), "w").write("\n".join(lines) + "\n")
+    print(f"saved -> {out_path}")
+
 if __name__ == "__main__":
     import argparse
 
@@ -660,6 +765,8 @@ if __name__ == "__main__":
                    help="9b-seeds: test-retest ceilings -> results/noise_ceiling.json (run once)")
     g.add_argument("--ceiling-selfcheck", action="store_true",
                    help="B_orig50 must reproduce 0.9092; writes nothing")
+    g.add_argument("--partial", action="store_true",
+                   help="9c-partial: partial Spearman | log10 FLOPs -> results/partial_flops.json (run once)")
     ap.add_argument("--extend", action="store_true",
                     help="with --ceiling: append the 9b-rep2 sets to the existing artifact (existing blocks untouched)")
     args = ap.parse_args()
@@ -669,6 +776,9 @@ if __name__ == "__main__":
         raise SystemExit(0 if selfcheck() else 1)
     if args.replication_selfcheck:
         raise SystemExit(0 if replication_selfcheck() else 1)
+    if args.partial:
+        partial_flops()
+        raise SystemExit(0)
     if args.ceiling or args.ceiling_selfcheck:
         noise_ceilings(write=args.ceiling, extend=args.extend)
         raise SystemExit(0)
