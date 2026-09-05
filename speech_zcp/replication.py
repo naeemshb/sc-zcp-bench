@@ -35,12 +35,17 @@ SPLITS_DIR = os.path.join(os.path.dirname(__file__), "splits")
 REP_SPECS = {
     "A_rep": {"space": "A", "n": 150, "stream": "Atest-expansion-2027", "exclude_n": 250},
     "B_rep": {"space": "B", "n": 200, "stream": "B-replication-2027", "exclude_n": 200},
+    # 9b-rep2 (declared 2026-09-03): also disjoint from the first replication sets.
+    "A_rep2": {"space": "A", "n": 100, "stream": "Atest-expansion-2027-r2", "exclude_n": 250, "exclude_splits": ["A_rep"]},
+    "B_rep2": {"space": "B", "n": 100, "stream": "B-replication-2027-r2", "exclude_n": 200, "exclude_splits": ["B_rep"]},
 }
 
 
 def sample_replication(name: str) -> list[dict]:
     spec = REP_SPECS[name]
     released = {spaces.arch_id(c) for c in spaces.sample_archs(spec["space"], spec["exclude_n"])}
+    for prior in spec.get("exclude_splits", []):
+        released |= set(json.load(open(os.path.join(SPLITS_DIR, f"replication_{prior}.json")))["arch_ids"])
     rng = random.Random(spec["stream"])
     sampler = spaces.sample_space_a if spec["space"] == "A" else spaces.sample_space_b
     seen, out = set(released), []
@@ -59,8 +64,11 @@ def sample_replication(name: str) -> list[dict]:
 def write_splits():
     os.makedirs(SPLITS_DIR, exist_ok=True)
     for name in REP_SPECS:
-        cfgs = sample_replication(name)
         path = os.path.join(SPLITS_DIR, f"replication_{name}.json")
+        if os.path.exists(path):  # pinned splits are never rewritten
+            print(f"{name}: exists, skipped")
+            continue
+        cfgs = sample_replication(name)
         json.dump({"spec": REP_SPECS[name], "n": len(cfgs),
                    "arch_ids": [spaces.arch_id(c) for c in cfgs], "configs": cfgs},
                   open(path, "w"), indent=1)

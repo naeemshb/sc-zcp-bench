@@ -208,7 +208,7 @@ def load_arch(cache_name: str, arch_id: str) -> dict:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--target", required=True, choices=["A", "B", "nb201", "nb201_holdout", "A_rep", "B_rep"])
+    ap.add_argument("--target", required=True, choices=["A", "B", "nb201", "nb201_holdout", "A_rep", "B_rep", "A_rep2", "B_rep2"])
     ap.add_argument("--threads", type=int, default=8)
     args = ap.parse_args()
     torch.set_num_threads(args.threads)
@@ -216,7 +216,7 @@ def main():
         build_nb201_cache()
     elif args.target == "nb201_holdout":
         build_nb201_cache(holdout=True)
-    elif args.target.endswith("_rep"):
+    elif "_rep" in args.target:
         build_speech_rep(args.target)
     else:
         build_speech(args.target)

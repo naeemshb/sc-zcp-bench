@@ -1,0 +1,3006 @@
+{
+ "spec": {
+  "space": "A",
+  "n": 100,
+  "stream": "Atest-expansion-2027-r2",
+  "exclude_n": 250,
+  "exclude_splits": [
+   "A_rep"
+  ]
+ },
+ "n": 100,
+ "arch_ids": [
+  "5d6f8c7973",
+  "ba5ee77ee9",
+  "a3b0061810",
+  "067c58464e",
+  "5a660a4d73",
+  "ce40624bf0",
+  "67ae86386f",
+  "0b5685d004",
+  "7131a9b98a",
+  "b8a6aca5ea",
+  "107de4ac72",
+  "152eab8ee4",
+  "3c0aaa397a",
+  "f16c696d06",
+  "61e8301702",
+  "cfd90e93a7",
+  "7007727b0c",
+  "999396ccd8",
+  "c50576527a",
+  "aa28d6d84b",
+  "243f8aad97",
+  "cfda89f3ec",
+  "0abaff73ad",
+  "d6fffd81b1",
+  "a87e812342",
+  "db25a511cc",
+  "7c1a30f167",
+  "a45524a761",
+  "876c5c0de3",
+  "8030b02beb",
+  "065f84b8ba",
+  "469f499035",
+  "2bd3d3ceda",
+  "562081cf03",
+  "72e8962990",
+  "6711d2ee9a",
+  "47a3bec78a",
+  "4e4edffb13",
+  "d7b64e90e8",
+  "11766c5ea1",
+  "79ca934e3b",
+  "ea708ecbe5",
+  "a54fd23f8f",
+  "3ac62e69e9",
+  "ca7ff822e2",
+  "4644774c4b",
+  "280359c0ac",
+  "b7a0b51125",
+  "c6802cabef",
+  "b30f3bbd5f",
+  "8be0a27203",
+  "a472cfcb2b",
+  "0c2c799723",
+  "7b19cc62d1",
+  "8cf7c2b250",
+  "121b6c3aa6",
+  "724c470937",
+  "a571fbba68",
+  "d1c28196f3",
+  "de02dbff0c",
+  "0a22af8f1a",
+  "ab1f43715d",
+  "99bb097a06",
+  "89145423c2",
+  "de240812b4",
+  "d57785b281",
+  "080fe66197",
+  "8edac4db7b",
+  "46991bed77",
+  "f435efa054",
+  "884ea0b707",
+  "dc75be46aa",
+  "b30947abe6",
+  "1a0d5063dc",
+  "cae799c4a4",
+  "d04053937a",
+  "ab92cc8b64",
+  "02be1217c7",
+  "2dfeb6cd81",
+  "69a574f9fc",
+  "32424b85af",
+  "2cce38d7ad",
+  "3fc5d24262",
+  "53020a4500",
+  "dbb46c4e07",
+  "c18e3949ce",
+  "ea4ccb025e",
+  "c09809bb39",
+  "e74dc67810",
+  "2c4b15987a",
+  "556a5a7609",
+  "c9ebbfd853",
+  "8aa38e3eb4",
+  "eb2ac73746",
+  "b0a3926466",
+  "0863cde810",
+  "3e32ea5e7a",
+  "a941a35e39",
+  "cc630dae36",
+  "b90d51d87a"
+ ],
+ "configs": [
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 32,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 8,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 16,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 24,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 8,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 24,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 32,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 32,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 16,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 8,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 8,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 24,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 16,
+     "kernel": 3,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 24,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 8,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 24,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 24,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 32,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 32,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 172,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 32,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 24,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 8,
+     "kernel": 7,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 8,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 7,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 32,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 24,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 24,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 24,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 24,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 172,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 32,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 24,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 8,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 16,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 172,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 24,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 32,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 24,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 172,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 8,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 16,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 8,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 8,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 3,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 16,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 32,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 24,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 32,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 32,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 64,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 24,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 32,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 172,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 128,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 32,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 96,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 3,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 8,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 64,
+     "kernel": 1,
+     "stride": 2
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 16,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 3,
+     "stride": 1
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 48,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 32,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 24,
+     "kernel": 3,
+     "stride": 1
+    },
+    {
+     "channels": 8,
+     "kernel": 5,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    1
+   ],
+   "blocks": [
+    {
+     "channels": 172,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 48,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 96,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 48,
+     "kernel": 5,
+     "stride": 2
+    },
+    {
+     "channels": 32,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 64,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 8,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 32,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 1,
+     "stride": 1
+    },
+    {
+     "channels": 172,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 32,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 128,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 16,
+     "kernel": 5,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  },
+  {
+   "space": "A",
+   "stem_channels": 16,
+   "stem_stride": [
+    4,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 7,
+     "stride": 1
+    },
+    {
+     "channels": 128,
+     "kernel": 7,
+     "stride": 1
+    }
+   ],
+   "pool": "avg"
+  },
+  {
+   "space": "A",
+   "stem_channels": 24,
+   "stem_stride": [
+    2,
+    2
+   ],
+   "blocks": [
+    {
+     "channels": 48,
+     "kernel": 3,
+     "stride": 2
+    },
+    {
+     "channels": 24,
+     "kernel": 1,
+     "stride": 2
+    },
+    {
+     "channels": 8,
+     "kernel": 7,
+     "stride": 2
+    }
+   ],
+   "pool": "max"
+  }
+ ]
+}
