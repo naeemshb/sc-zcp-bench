@@ -46,6 +46,10 @@ RECIPE = {
 
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
 
+# 9c-recipe robustness check ONLY (PROTOCOL.md 9c): never a ground-truth recipe.
+RECIPE_FULL = {**RECIPE, "train_subsample": None, "max_epochs": 30, "early_stop_patience": 5,
+               "recipe_version": "full-v1"}
+
 
 def git_hash() -> str:
     try:
@@ -58,7 +62,7 @@ def git_hash() -> str:
 
 def _stratified_subsample(x, y, n: int, seed: int = 0):
     """Deterministic per-class proportional subsample of the training split."""
-    if n >= len(y):
+    if n is None or n >= len(y):
         return x, y
     g = torch.Generator().manual_seed(seed)
     keep = []
@@ -88,23 +92,24 @@ def _accuracy(model, x, y, device, batch_size=512) -> float:
     return correct / len(y)
 
 
-def train_one(cfg: dict, data: dict, device: str, seed: int = 0) -> dict:
+def train_one(cfg: dict, data: dict, device: str, seed: int = 0, recipe: dict = RECIPE) -> dict:
+    """recipe defaults to the FROZEN pilot-v2 RECIPE; only 9c-recipe passes RECIPE_FULL."""
     torch.manual_seed(seed)
     model = spaces.build_model(cfg, init_seed=seed).to(device)
-    opt = torch.optim.Adam(model.parameters(), lr=RECIPE["lr"], weight_decay=RECIPE["weight_decay"])
+    opt = torch.optim.Adam(model.parameters(), lr=recipe["lr"], weight_decay=recipe["weight_decay"])
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(
-        opt, T_max=RECIPE["max_epochs"], eta_min=RECIPE["lr_min"]
+        opt, T_max=recipe["max_epochs"], eta_min=recipe["lr_min"]
     )
     gen = torch.Generator().manual_seed(seed)
     xtr, ytr = _stratified_subsample(
-        data["train"]["x"], data["train"]["y"], RECIPE["train_subsample"]
+        data["train"]["x"], data["train"]["y"], recipe["train_subsample"]
     )
 
     best_val, best_state, best_epoch, bad_epochs = -1.0, None, -1, 0
     t0 = time.time()
-    for epoch in range(RECIPE["max_epochs"]):
+    for epoch in range(recipe["max_epochs"]):
         model.train()
-        for xb, yb in _epoch_iter(xtr, ytr, RECIPE["batch_size"], gen):
+        for xb, yb in _epoch_iter(xtr, ytr, recipe["batch_size"], gen):
             opt.zero_grad()
             loss = F.cross_entropy(model(xb.to(device)), yb.to(device))
             loss.backward()
@@ -116,7 +121,7 @@ def train_one(cfg: dict, data: dict, device: str, seed: int = 0) -> dict:
             best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
         else:
             bad_epochs += 1
-            if bad_epochs >= RECIPE["early_stop_patience"]:
+            if bad_epochs >= recipe["early_stop_patience"]:
                 break
     wall = time.time() - t0
 
@@ -136,7 +141,7 @@ def train_one(cfg: dict, data: dict, device: str, seed: int = 0) -> dict:
         "flops": flops_count(cpu_model, dummy),
         "wall_clock_s": wall,
         "device": device,
-        "recipe": RECIPE,
+        "recipe": recipe,
         "git_hash": git_hash(),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "machine": os.uname().nodename,
