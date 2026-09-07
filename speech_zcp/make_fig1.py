@@ -43,14 +43,18 @@ def seed_curve(ev):
     return ms, hs
 
 
-def main(png=None):
+def main(png=None, single=False):
+    """single=True: panel (a) only -> fig1_curve.pdf (page-budget variant; same data, same code)."""
     ev = json.load(open(os.path.join(RES, "evaluation.json")))
     nc = json.load(open(os.path.join(RES, "noise_ceiling.json")))["B"]
     gt = [json.load(open(f)) for f in glob.glob(os.path.join(RES, "gt_B", "*_s0.json"))]
 
     plt.rcParams.update({"font.size": 9, "axes.titlesize": 9.5, "axes.labelsize": 9,
                          "xtick.labelsize": 8.5, "ytick.labelsize": 8.5, "pdf.fonttype": 42})
-    fig, (ax, bx) = plt.subplots(2, 1, figsize=(3.6, 5.4), gridspec_kw={"hspace": 0.55})
+    if single:
+        fig, ax = plt.subplots(1, 1, figsize=(3.6, 2.7)); bx = None
+    else:
+        fig, (ax, bx) = plt.subplots(2, 1, figsize=(3.6, 5.4), gridspec_kw={"hspace": 0.55})
 
     # ---- (a) learning curve -------------------------------------------------
     ms, hs = seed_curve(ev)
@@ -77,11 +81,18 @@ def main(png=None):
     ax.set_xticks(xpos); ax.set_xticklabels([str(b) for b in BUDGETS])
     ax.set_xlim(-0.35, 4.35); ax.set_ylim(0.2, 1.0)
     ax.set_xlabel("speech ground-truth budget $N$"); ax.set_ylabel("Spearman $\\rho$ on Space B")
-    ax.set_title("(a) evolved proxies vs. in-domain budget")
+    ax.set_title("evolved proxies vs. in-domain budget" if single else "(a) evolved proxies vs. in-domain budget")
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
 
     # ---- (b) compute orders the space ---------------------------------------
+    if single:
+        outs = (os.path.join(ROOT, "fig1_curve.pdf"), os.path.join(HERE, "figures", "fig1_curve.pdf"))
+        for out in outs:
+            fig.savefig(out, bbox_inches="tight"); print("wrote", out)
+        if png:
+            fig.savefig(png, dpi=180, bbox_inches="tight"); print("wrote", png)
+        return
     flops = np.array([g["flops"] for g in gt]); acc = np.array([g["test_acc"] for g in gt]) * 100
     terc = np.percentile(flops, [33.3, 66.7])
     tier = np.digitize(flops, terc)
@@ -112,4 +123,6 @@ def main(png=None):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--png", default=None)
-    main(ap.parse_args().png)
+    ap.add_argument("--single", action="store_true", help="panel (a) only -> fig1_curve.pdf")
+    a = ap.parse_args()
+    main(a.png, a.single)
