@@ -43,6 +43,55 @@ def seed_curve(ev):
     return ms, hs
 
 
+def _single_panel(ev, nc, png=None):
+    """Page-budget variant: the learning curve alone, no title, no shaded bands.
+    Fixed rankers are thin reference lines with their 10k-bootstrap 95% CIs as
+    whiskers in the right margin; the curve carries t-based 95% seed intervals."""
+    ms, hs = seed_curve(ev)
+    xpos = np.arange(len(BUDGETS))
+    plt.rcParams.update({"font.size": 8.5, "axes.labelsize": 8.5, "xtick.labelsize": 8, "ytick.labelsize": 8,
+                         "pdf.fonttype": 42, "axes.linewidth": 0.7})
+    fig, ax = plt.subplots(1, 1, figsize=(3.6, 2.45))
+    fig.subplots_adjust(right=0.70)
+    refs = [("flops", "FLOPs", "#d95f02", 4.55, "bottom", 0.006),
+            ("nwot", "nwot", "#7570b3", 4.70, "top", -0.006),
+            ("params", "#params", "#1b9e77", 4.55, "center", 0.0)]
+    for key, label, color, xw, va, dy in refs:
+        blk = ev["standard"][key]["B"]
+        ax.axhline(blk["spearman"], color=color, lw=0.9, alpha=0.9, zorder=1)
+        lo, hi = blk["ci95"]
+        ax.plot([xw, xw], [lo, hi], color=color, lw=0.9, clip_on=False, zorder=2)
+        for y in (lo, hi):
+            ax.plot([xw - 0.06, xw + 0.06], [y, y], color=color, lw=0.9, clip_on=False, zorder=2)
+        ax.text(4.86, blk["spearman"] + dy, f"{label} {blk['spearman']:.3f}", color=color, fontsize=7.5,
+                va=va, ha="left", clip_on=False)
+    ax.axhline(nc["spearman"], color="0.3", lw=0.9, ls=(0, (4, 2)), zorder=1)
+    lo, hi = nc["ci95"]
+    ax.plot([4.55, 4.55], [lo, hi], color="0.3", lw=0.9, clip_on=False)
+    for y in (lo, hi):
+        ax.plot([4.49, 4.61], [y, y], color="0.3", lw=0.9, clip_on=False)
+    ax.text(4.86, nc["spearman"], f"noise ceiling {nc['spearman']:.3f}", color="0.3", fontsize=7.5,
+            va="center", ha="left", clip_on=False)
+    ax.errorbar(xpos, ms, yerr=hs, color=CURVE, marker="o", ms=4.5, lw=1.5, elinewidth=0.9,
+                capsize=2.5, capthick=0.9, zorder=5)
+    ax.set_xticks(xpos)
+    ax.set_xticklabels([str(b) for b in BUDGETS])
+    ax.set_xlim(-0.35, 4.35)
+    ax.set_ylim(0.28, 1.0)
+    ax.set_yticks([0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    ax.set_xlabel("in-domain budget $N$ (trained speech models; $N{=}0$: vision only)")
+    ax.set_ylabel("Spearman $\\rho$, sealed Space B")
+    ax.grid(axis="y", color="0.92", lw=0.6)
+    ax.set_axisbelow(True)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    for out in (os.path.join(ROOT, "fig1_curve.pdf"), os.path.join(HERE, "figures", "fig1_curve.pdf")):
+        fig.savefig(out, bbox_inches="tight"); print("wrote", out)
+    if png:
+        fig.savefig(png, dpi=200, bbox_inches="tight"); print("wrote", png)
+    print(f"ceiling {nc['spearman']:.4f}  curve means {[round(m, 3) for m in ms]}  half-widths {[round(h, 3) for h in hs]}")
+
+
 def main(png=None, single=False):
     """single=True: panel (a) only -> fig1_curve.pdf (page-budget variant; same data, same code)."""
     ev = json.load(open(os.path.join(RES, "evaluation.json")))
@@ -52,10 +101,7 @@ def main(png=None, single=False):
     plt.rcParams.update({"font.size": 9, "axes.titlesize": 9.5, "axes.labelsize": 9,
                          "xtick.labelsize": 8.5, "ytick.labelsize": 8.5, "pdf.fonttype": 42})
     if single:
-        fig, ax = plt.subplots(1, 1, figsize=(3.6, 2.7)); bx = None
-    else:
-        fig, (ax, bx) = plt.subplots(2, 1, figsize=(3.6, 5.4), gridspec_kw={"hspace": 0.55})
-
+        return _single_panel(ev, nc, png)
     # ---- (a) learning curve -------------------------------------------------
     ms, hs = seed_curve(ev)
     xpos = np.arange(len(BUDGETS))
@@ -81,18 +127,11 @@ def main(png=None, single=False):
     ax.set_xticks(xpos); ax.set_xticklabels([str(b) for b in BUDGETS])
     ax.set_xlim(-0.35, 4.35); ax.set_ylim(0.2, 1.0)
     ax.set_xlabel("speech ground-truth budget $N$"); ax.set_ylabel("Spearman $\\rho$ on Space B")
-    ax.set_title("evolved proxies vs. in-domain budget" if single else "(a) evolved proxies vs. in-domain budget")
+    ax.set_title("(a) evolved proxies vs. in-domain budget")
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
 
     # ---- (b) compute orders the space ---------------------------------------
-    if single:
-        outs = (os.path.join(ROOT, "fig1_curve.pdf"), os.path.join(HERE, "figures", "fig1_curve.pdf"))
-        for out in outs:
-            fig.savefig(out, bbox_inches="tight"); print("wrote", out)
-        if png:
-            fig.savefig(png, dpi=180, bbox_inches="tight"); print("wrote", png)
-        return
     flops = np.array([g["flops"] for g in gt]); acc = np.array([g["test_acc"] for g in gt]) * 100
     terc = np.percentile(flops, [33.3, 66.7])
     tier = np.digitize(flops, terc)
