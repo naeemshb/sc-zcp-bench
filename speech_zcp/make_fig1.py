@@ -72,8 +72,7 @@ def _single_panel(ev, nc, png=None):
         ax.plot([4.49, 4.61], [y, y], color="0.3", lw=0.9, clip_on=False)
     ax.text(4.86, nc["spearman"], f"noise ceiling {nc['spearman']:.3f}", color="0.3", fontsize=7.5,
             va="center", ha="left", clip_on=False)
-    ax.errorbar(xpos, ms, yerr=hs, color=CURVE, marker="o", ms=4.5, lw=1.5, elinewidth=0.9,
-                capsize=2.5, capthick=0.9, zorder=5)
+    ax.plot(xpos, ms, color=CURVE, marker="o", ms=4.5, lw=1.6, zorder=5)  # seed intervals reported in text
     ax.set_xticks(xpos)
     ax.set_xticklabels([str(b) for b in BUDGETS])
     ax.set_xlim(-0.35, 4.35)
