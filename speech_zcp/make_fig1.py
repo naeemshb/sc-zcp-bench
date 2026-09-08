@@ -44,33 +44,25 @@ def seed_curve(ev):
 
 
 def _single_panel(ev, nc, png=None):
-    """Page-budget variant: the learning curve alone, no title, no shaded bands.
-    Fixed rankers are thin reference lines with their 10k-bootstrap 95% CIs as
-    whiskers in the right margin; the curve carries t-based 95% seed intervals."""
+    """Page-budget variant: the learning curve alone, no title, no bands, no
+    interval marks (all CIs are in Table 1 and Sec. 5.1); fixed rankers and the
+    noise ceiling are thin labeled reference lines."""
     ms, hs = seed_curve(ev)
     xpos = np.arange(len(BUDGETS))
     plt.rcParams.update({"font.size": 8.5, "axes.labelsize": 8.5, "xtick.labelsize": 8, "ytick.labelsize": 8,
                          "pdf.fonttype": 42, "axes.linewidth": 0.7})
     fig, ax = plt.subplots(1, 1, figsize=(3.6, 2.45))
-    fig.subplots_adjust(right=0.70)
-    refs = [("flops", "FLOPs", "#d95f02", 4.55, "bottom", 0.006),
-            ("nwot", "nwot", "#7570b3", 4.70, "top", -0.006),
-            ("params", "#params", "#1b9e77", 4.55, "center", 0.0)]
-    for key, label, color, xw, va, dy in refs:
+    fig.subplots_adjust(right=0.74)
+    refs = [("flops", "FLOPs", "#d95f02", "bottom", 0.006),
+            ("nwot", "nwot", "#7570b3", "top", -0.006),
+            ("params", "#params", "#1b9e77", "center", 0.0)]
+    for key, label, color, va, dy in refs:
         blk = ev["standard"][key]["B"]
         ax.axhline(blk["spearman"], color=color, lw=0.9, alpha=0.9, zorder=1)
-        lo, hi = blk["ci95"]
-        ax.plot([xw, xw], [lo, hi], color=color, lw=0.9, clip_on=False, zorder=2)
-        for y in (lo, hi):
-            ax.plot([xw - 0.06, xw + 0.06], [y, y], color=color, lw=0.9, clip_on=False, zorder=2)
-        ax.text(4.86, blk["spearman"] + dy, f"{label} {blk['spearman']:.3f}", color=color, fontsize=7.5,
+        ax.text(4.5, blk["spearman"] + dy, f"{label} {blk['spearman']:.3f}", color=color, fontsize=7.5,
                 va=va, ha="left", clip_on=False)
     ax.axhline(nc["spearman"], color="0.3", lw=0.9, ls=(0, (4, 2)), zorder=1)
-    lo, hi = nc["ci95"]
-    ax.plot([4.55, 4.55], [lo, hi], color="0.3", lw=0.9, clip_on=False)
-    for y in (lo, hi):
-        ax.plot([4.49, 4.61], [y, y], color="0.3", lw=0.9, clip_on=False)
-    ax.text(4.86, nc["spearman"], f"noise ceiling {nc['spearman']:.3f}", color="0.3", fontsize=7.5,
+    ax.text(4.5, nc["spearman"], f"noise ceiling {nc['spearman']:.3f}", color="0.3", fontsize=7.5,
             va="center", ha="left", clip_on=False)
     ax.plot(xpos, ms, color=CURVE, marker="o", ms=4.5, lw=1.6, zorder=5)  # seed intervals reported in text
     ax.set_xticks(xpos)
