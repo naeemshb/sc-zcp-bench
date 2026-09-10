@@ -64,11 +64,22 @@ def _single_panel(ev, nc, png=None):
     ax.axhline(nc["spearman"], color="0.3", lw=0.9, ls=(0, (4, 2)), zorder=1)
     ax.text(4.5, nc["spearman"], f"noise ceiling {nc['spearman']:.3f}", color="0.3", fontsize=7.5,
             va="center", ha="left", clip_on=False)
+    # the remaining fixed proxies, so the curve is seen against ALL references (values in Table 1)
+    mid = {k: ev["standard"][k]["B"]["spearman"] for k in ("zen", "l2_norm", "snip", "synflow")}
+    lo, hi = min(mid.values()), max(mid.values())
+    ax.axhspan(lo, hi, color="0.6", alpha=0.22, lw=0, zorder=0)
+    ax.text(4.5, (lo + hi) / 2, f"zen / l2 / snip / synflow\n{lo:.2f}\u2013{hi:.2f}", color="0.4", fontsize=7,
+            va="center", ha="left", clip_on=False, linespacing=1.1)
+    gn = ev["standard"]["grad_norm"]["B"]["spearman"]
+    ax.axhline(gn, color="0.6", lw=0.8, ls=(0, (2, 2)), zorder=0)
+    ax.text(4.5, gn + 0.004, f"grad_norm {gn:.2f}", color="0.4", fontsize=7, va="bottom", ha="left", clip_on=False)
+    ax.text(4.5, 0.255, "fisher, grasp, plain < 0.1\n(below axis)", color="0.5", fontsize=6.5,
+            va="bottom", ha="left", clip_on=False, linespacing=1.1)
     ax.plot(xpos, ms, color=CURVE, marker="o", ms=4.5, lw=1.6, zorder=5)  # seed intervals reported in text
     ax.set_xticks(xpos)
     ax.set_xticklabels([str(b) for b in BUDGETS])
     ax.set_xlim(-0.35, 4.35)
-    ax.set_ylim(0.28, 1.0)
+    ax.set_ylim(0.25, 1.0)
     ax.set_yticks([0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
     ax.set_xlabel("in-domain budget $N$ (trained speech models; $N{=}0$: vision only)")
     ax.set_ylabel("Spearman $\\rho$, sealed Space B")
