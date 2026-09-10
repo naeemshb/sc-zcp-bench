@@ -81,7 +81,7 @@ def a_pool_and_test() -> tuple[list[str], list[str]]:
     return pool, test
 
 
-def nested_chain(seed: int, index: dict, pool: list[str]) -> list[str]:
+def nested_chain(seed: int, index: dict, pool: list[str], gt_dir: str = "gt_A") -> list[str]:
     """FLOPs-stratified nested chain over the pool: 25 c 50 c 100 c 200.
 
     Pool is sorted by FLOPs into n_strata equal strata; each stratum is
@@ -91,7 +91,7 @@ def nested_chain(seed: int, index: dict, pool: list[str]) -> list[str]:
     if any(v is None for v in flops.values()):  # fall back to gt files
         import glob
 
-        for f in glob.glob(os.path.join(os.path.dirname(RESULTS_DIR), "gt_A", "*_s0.json")):
+        for f in glob.glob(os.path.join(os.path.dirname(RESULTS_DIR), gt_dir, "*_s0.json")):
             r = json.load(open(f))
             if r["arch_id"] in flops:
                 flops[r["arch_id"]] = r["flops"]
@@ -175,7 +175,7 @@ def tree_from_json(d) -> gp.Node:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--budget", type=int, required=True, choices=[0, 25, 50, 100, 200])
+    ap.add_argument("--budget", type=int, required=True, choices=[0, 25, 50, 100, 200, 300])
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--warm-start", default=None,
                     help="path to an N=0 elite json to seed the population (ablation)")
@@ -204,12 +204,27 @@ def main():
         pool, _ = a_pool_and_test()
         terminals = gp.SPEECH_TERMINALS
         cache_name, tag = "A", f"A_N{args.budget}_s{args.seed}"
-        chain = nested_chain(args.seed, index, pool)[: args.budget]
+        chain = nested_chain(args.seed, index, pool)[: min(args.budget, len(pool))]
+    cache_of = {aid: cache_name for aid in chain}
+    if args.budget == 300:
+        # 9e-N300 (PROTOCOL.md): the N=200 chain (whole pool) + 100 extension archs from A_rep2,
+        # stratified and seeded the same way; nesting 200 c 300 holds by construction.
+        ext_index = json.load(open(os.path.join(CACHE_DIR, "A_rep2_index.json")))
+        ext_ids = sorted(ext_index["archs"], key=lambda a: ext_index["archs"][a]["i"])
+        ext_chain = nested_chain(args.seed, ext_index, ext_ids, gt_dir="gt_A_rep2")[:100]
+        assert not set(ext_chain) & set(chain)
+        chain = chain + ext_chain
+        for aid in ext_chain:
+            cache_of[aid] = "A_rep2"
+            index["archs"][aid] = ext_index["archs"][aid]
+        if args.out_dir is None:
+            out_dir = os.path.join(os.path.dirname(RESULTS_DIR), "evolved_n300")
+            os.makedirs(out_dir, exist_ok=True)
 
     print(f"[{tag}] loading {len(chain)} cached archs...", flush=True)
     ctxs = []
     for aid in chain:
-        arrs = load_arch(cache_name, aid)
+        arrs = load_arch(cache_of[aid], aid)
         ctx = {}
         for kind in ["W", "G", "A", "Gn", "An", "AstdT", "AnstdT"]:
             keys = sorted((k for k in arrs if k.startswith(kind + "_")),
@@ -249,6 +264,7 @@ def main():
         "found_at_gen": gen, "history": history,
         "protocol": "no-split" if small else "80/20",
         "config": CONFIG, "chain": chain,
+        "extension_pool": "A_rep2" if args.budget == 300 else None,
         "warm_start": args.warm_start,
         "git_hash": git_hash(),
         "timestamp": datetime.now(timezone.utc).isoformat(),
