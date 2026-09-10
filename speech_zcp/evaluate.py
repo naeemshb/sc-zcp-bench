@@ -748,6 +748,144 @@ def partial_flops():
     open(os.path.join(RESULTS_DIR, "partial_flops.md"), "w").write("\n".join(lines) + "\n")
     print(f"saved -> {out_path}")
 
+# ---------------------------------------------------------------------------
+# 9e-N300: sealed evaluation of the N=300 elites (PROTOCOL.md 9e)
+# ---------------------------------------------------------------------------
+N300_DIR = os.path.join(RESULTS_DIR, "evolved_n300")
+N300_SETS = ["B", "Atest", "B_rep_pooled", "A_rep"]
+
+
+def _prep_named(name: str) -> dict:
+    """ids/accs/flops/cfgs + cached standard scores + ctx list, in exactly the
+    order main() / run_replication use for that set."""
+    if name == "Atest":
+        gtA = gt_map("A")
+        ids = list(a_pool_and_test()[1])
+        s = {"ids": ids, "accs": [gtA[a]["test_acc"] for a in ids], "flops": [gtA[a]["flops"] for a in ids],
+             "cfgs": {a: gtA[a]["config"] for a in ids}, "members": ["A"]}
+        s["std"] = standard_scores("Atest", ids, s["cfgs"])
+        s["ctx"] = [load_ctx("A", a) for a in ids]
+        return s
+    s = _load_pooled(["B_rep", "B_rep2"]) if name == "B_rep_pooled" else _load_set(name)
+    s["std"] = _std_scores_for(s)
+    s["ctx"] = _ctx_for(s)
+    return s
+
+
+def _sealed_refs() -> dict:
+    """set name -> (artifact dict, column key) for exact cross-checks."""
+    ev = json.load(open(os.path.join(RESULTS_DIR, "evaluation.json")))
+    rep = json.load(open(os.path.join(RESULTS_DIR, "replication.json")))
+    rep2 = json.load(open(os.path.join(RESULTS_DIR, "replication2.json")))
+    return {"B": (ev, "B"), "Atest": (ev, "Atest"), "A_rep": (rep, "A_rep"), "B_rep_pooled": (rep2, "B_rep_pooled")}
+
+
+def _tint(v):
+    v = np.asarray(v, dtype=float)
+    h = float(st.t.ppf(0.975, len(v) - 1) * v.std(ddof=1) / np.sqrt(len(v))) if len(v) > 1 else float("nan")
+    return {"mean": float(v.mean()), "sd": float(v.std()), "n": int(len(v)), "t95": [float(v.mean() - h), float(v.mean() + h)]}
+
+
+def run_elite_dir(elite_dir: str, keep, out_name, title: str) -> dict:
+    """Score every elite json in elite_dir accepted by keep(record) on N300_SETS.
+    Standard-proxy rows are recomputed from cached scores and must equal the
+    sealed artifacts exactly (a built-in cross-check of ordering and inputs)."""
+    torch.set_num_threads(max(2, os.cpu_count() - 2))
+    refs = _sealed_refs()
+    sets = {n: _prep_named(n) for n in N300_SETS}
+    results = {"standard": {}, "evolved": {}, "wilcoxon": {}, "summary": {}}
+    for p in ALL_PROXIES:
+        results["standard"][p] = {}
+        for n, s in sets.items():
+            blk = metric_block([s["std"][p][a] for a in s["ids"]], s["accs"], s["flops"])
+            art, col = refs[n]
+            ref = art["standard"][p][col]
+            if blk.get("spearman") != ref.get("spearman") or blk.get("ci95") != ref.get("ci95"):
+                raise SystemExit(f"cross-check FAILED: standard {p} on {n} does not reproduce the sealed artifact")
+            results["standard"][p][n] = blk
+    print("cross-check: all 11 standard proxies reproduce the sealed artifacts exactly on " + ", ".join(sets), flush=True)
+    rhos_B = []
+    for f in sorted(glob.glob(os.path.join(elite_dir, "*.json"))):
+        r = json.load(open(f))
+        if not keep(r):
+            continue
+        tree = tree_from_json(r["tree_json"])
+        block = {"tree": r["tree"], "budget": r["budget"], "seed": r["seed"], "terminals_used": r["terminals_used"]}
+        for n, s in sets.items():
+            sc = gp.scores_for(tree, s["ctx"])
+            block[n] = metric_block(sc, s["accs"], s["flops"]) if sc else {"spearman": None, "note": f"invalid on {n}"}
+        results["evolved"][r["tag"]] = block
+        if block["B"].get("spearman") is not None:
+            rhos_B.append(block["B"]["spearman"])
+        print(f"elite {r['tag']:14s} " + "  ".join(f"{n}={block[n].get('spearman'):.3f}" if block[n].get("spearman") is not None else f"{n}=n/a" for n in sets), flush=True)
+    params_rho = results["standard"]["params"]["B"]["spearman"]
+    if len(rhos_B) >= 6:
+        w = st.wilcoxon(np.array(rhos_B) - params_rho, alternative="greater")
+        results["wilcoxon"]["vs_params_on_B"] = {"n_seeds": len(rhos_B), "mean_rho": float(np.mean(rhos_B)),
+                                                 "params_rho": params_rho, "p_value": float(w.pvalue)}
+    # summary vs the committed N=200 cold elites on the same sets (from the sealed artifacts)
+    for n in sets:
+        art, col = refs[n]
+        n200 = [v[col]["spearman"] for k, v in art["evolved"].items()
+                if v["budget"] == 200 and not v.get("warm") and v[col].get("spearman") is not None]
+        new = [b[n]["spearman"] for b in results["evolved"].values() if b[n].get("spearman") is not None]
+        results["summary"][n] = {"new": _tint(new), "n200_committed": _tint(n200)}
+    results["meta"] = {"protocol": "PROTOCOL.md 9e-N300: sealed, once; standard rows cross-checked exactly against evaluation/replication/replication2.json",
+                       "elite_dir": elite_dir, "n_boot": N_BOOT, "boot_seed": BOOT_SEED,
+                       "git_hash": git_hash(), "timestamp": datetime.now(timezone.utc).isoformat()}
+    if out_name:
+        out = os.path.join(RESULTS_DIR, f"{out_name}.json")
+        if os.path.exists(out):
+            raise SystemExit(f"{out} exists: sealed evaluations run once; delete it deliberately to recompute")
+        json.dump(results, open(out, "w"), indent=1)
+        sm = results["summary"]
+        b, b200 = sm["B"]["new"], sm["B"]["n200_committed"]
+        if b200["t95"][0] <= b["mean"] <= b200["t95"][1]:
+            reading = f"(a) flat beyond the pool: N=300 mean {b['mean']:.3f} lies within N=200's t-interval [{b200['t95'][0]:.3f}, {b200['t95'][1]:.3f}]"
+        elif b["t95"][0] > b200["t95"][1]:
+            reading = f"(b) rise: N=300 t-interval [{b['t95'][0]:.3f}, {b['t95'][1]:.3f}] lies above N=200's [{b200['t95'][0]:.3f}, {b200['t95'][1]:.3f}]"
+        elif b["t95"][1] < b200["t95"][0]:
+            reading = "(c) N=300 lies CI-separated BELOW N=200"
+        else:
+            reading = f"(a') N=300 mean {b['mean']:.3f} outside N=200's t-interval but intervals overlap: no separation"
+        lines = [f"# {title}", "", "| Ranker | Space B (n=200) | B pooled rep (n=300) | A-test (n=50) | A_rep (n=150) |", "|---|---|---|---|---|"]
+        for p, lab in [("flops", "FLOPs"), ("nwot", "nwot"), ("params", "#params")]:
+            lines.append(f"| {lab} | " + " | ".join(_fmt(results["standard"][p][n]) for n in sets) + " |")
+        lines.append("| Evolved N=200 (committed) | " + " | ".join(f"{sm[n]['n200_committed']['mean']:.3f} ± {sm[n]['n200_committed']['sd']:.3f}" for n in sets) + " |")
+        lines.append("| **Evolved N=300** | " + " | ".join(f"**{sm[n]['new']['mean']:.3f} ± {sm[n]['new']['sd']:.3f}**" for n in sets) + " |")
+        lines += ["", "| seed | formula | terminals | B | B pooled | A-test | A_rep |", "|---|---|---|---|---|---|---|"]
+        for tag, bl in sorted(results["evolved"].items(), key=lambda kv: kv[1]["seed"]):
+            lines.append(f"| {bl['seed']} | `{bl['tree']}` | {','.join(bl['terminals_used'])} | " + " | ".join(f"{bl[n]['spearman']:.3f}" if bl[n].get("spearman") is not None else "n/a" for n in sets) + " |")
+        wl = results["wilcoxon"].get("vs_params_on_B")
+        lines += ["", f"Wilcoxon evolved-N300 > #params on Space B: p = {wl['p_value']:.3f} (n={wl['n_seeds']})" if wl else "", f"**Pinned reading (Space B):** {reading}"]
+        open(os.path.join(RESULTS_DIR, f"{out_name}.md"), "w").write("\n".join(lines) + "\n")
+        print("\n".join(lines[-2:])); print(f"saved -> {out}")
+    return results
+
+
+def n300_selfcheck() -> bool:
+    """The N=300 code path, applied to the committed N=200 cold elites, must reproduce
+    their sealed numbers on all four sets exactly (writes nothing)."""
+    refs = _sealed_refs()
+    got = run_elite_dir(EVOLVED_DIR, lambda r: r["budget"] == 200 and not r["tag"].endswith("_warm"), None, "")
+    bad, n = [], 0
+    for tag, bl in got["evolved"].items():
+        for name, (art, col) in refs.items():
+            n += 1
+            ref = art["evolved"][tag][col]
+            if bl[name].get("spearman") != ref.get("spearman") or bl[name].get("ci95") != ref.get("ci95"):
+                bad.append(f"{tag}:{name}")
+    print(f"n300-selfcheck: {n - len(bad)}/{n} elite blocks reproduce the sealed artifacts exactly" + (f"  MISMATCH: {bad[:6]}" if bad else ""), flush=True)
+    return not bad
+
+
+def main_n300():
+    if not n300_selfcheck():
+        raise SystemExit("n300-selfcheck FAILED - sealed N=300 evaluation not run")
+    run_elite_dir(N300_DIR, lambda r: r["budget"] == 300, "n300",
+                  "9e-N300: sealed evaluation of the ten N=300 cold elites (PROTOCOL.md 9e)")
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -765,6 +903,10 @@ if __name__ == "__main__":
                    help="9b-seeds: test-retest ceilings -> results/noise_ceiling.json (run once)")
     g.add_argument("--ceiling-selfcheck", action="store_true",
                    help="B_orig50 must reproduce 0.9092; writes nothing")
+    g.add_argument("--n300", action="store_true",
+                   help="9e: score the N=300 elites once on B / A-test / pooled B rep / A_rep -> results/n300.json")
+    g.add_argument("--n300-selfcheck", action="store_true",
+                   help="N=300 code path must reproduce the committed N=200 elites' sealed numbers; writes nothing")
     g.add_argument("--partial", action="store_true",
                    help="9c-partial: partial Spearman | log10 FLOPs -> results/partial_flops.json (run once)")
     ap.add_argument("--extend", action="store_true",
@@ -776,6 +918,11 @@ if __name__ == "__main__":
         raise SystemExit(0 if selfcheck() else 1)
     if args.replication_selfcheck:
         raise SystemExit(0 if replication_selfcheck() else 1)
+    if args.n300_selfcheck:
+        raise SystemExit(0 if n300_selfcheck() else 1)
+    if args.n300:
+        main_n300()
+        raise SystemExit(0)
     if args.partial:
         partial_flops()
         raise SystemExit(0)
