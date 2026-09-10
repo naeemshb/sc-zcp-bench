@@ -26,7 +26,7 @@ import scipy.stats as st  # noqa: E402
 HERE = os.path.dirname(__file__)
 RES = os.path.join(HERE, "results")
 ROOT = os.path.dirname(HERE)
-BUDGETS = [0, 25, 50, 100, 200]
+BUDGETS = [0, 25, 50, 100, 200, 300]  # 300: results/n300.json (9e)
 REFS = [("flops", "FLOPs", "#e6550d"), ("nwot", "nwot", "#d6609a"), ("params", "#params", "#1b9e77")]
 CURVE = "#1f6fb4"
 TERC_COLORS = ["#fdc692", "#e6550d", "#a63603"]
@@ -34,8 +34,10 @@ TERC_COLORS = ["#fdc692", "#e6550d", "#a63603"]
 
 def seed_curve(ev):
     xs, ms, hs = [], [], []
+    n300 = json.load(open(os.path.join(RES, "n300.json")))["evolved"] if os.path.exists(os.path.join(RES, "n300.json")) else {}
     for N in BUDGETS:
-        r = [v["B"]["spearman"] for v in ev["evolved"].values() if v["budget"] == N and not v["warm"]]
+        src = n300 if N == 300 else ev["evolved"]
+        r = [v["B"]["spearman"] for v in src.values() if v["budget"] == N and not v.get("warm")]
         r = [x for x in r if x is not None]
         m = float(np.mean(r))
         h = float(st.t.ppf(0.975, len(r) - 1) * np.std(r, ddof=1) / np.sqrt(len(r)))
@@ -59,26 +61,26 @@ def _single_panel(ev, nc, png=None):
     for key, label, color, va, dy in refs:
         blk = ev["standard"][key]["B"]
         ax.axhline(blk["spearman"], color=color, lw=0.9, alpha=0.9, zorder=1)
-        ax.text(4.5, blk["spearman"] + dy, f"{label} {blk['spearman']:.3f}", color=color, fontsize=7.5,
+        ax.text(len(BUDGETS) - 0.5, blk["spearman"] + dy, f"{label} {blk['spearman']:.3f}", color=color, fontsize=7.5,
                 va=va, ha="left", clip_on=False)
     ax.axhline(nc["spearman"], color="0.3", lw=0.9, ls=(0, (4, 2)), zorder=1)
-    ax.text(4.5, nc["spearman"], f"noise ceiling {nc['spearman']:.3f}", color="0.3", fontsize=7.5,
+    ax.text(len(BUDGETS) - 0.5, nc["spearman"], f"noise ceiling {nc['spearman']:.3f}", color="0.3", fontsize=7.5,
             va="center", ha="left", clip_on=False)
     # the remaining fixed proxies, so the curve is seen against ALL references (values in Table 1)
     mid = {k: ev["standard"][k]["B"]["spearman"] for k in ("zen", "l2_norm", "snip", "synflow")}
     lo, hi = min(mid.values()), max(mid.values())
     ax.axhspan(lo, hi, color="0.6", alpha=0.22, lw=0, zorder=0)
-    ax.text(4.5, (lo + hi) / 2, f"zen / l2 / snip / synflow\n{lo:.2f}\u2013{hi:.2f}", color="0.4", fontsize=7,
+    ax.text(len(BUDGETS) - 0.5, (lo + hi) / 2, f"zen / l2 / snip / synflow\n{lo:.2f}\u2013{hi:.2f}", color="0.4", fontsize=7,
             va="center", ha="left", clip_on=False, linespacing=1.1)
     gn = ev["standard"]["grad_norm"]["B"]["spearman"]
     ax.axhline(gn, color="0.6", lw=0.8, ls=(0, (2, 2)), zorder=0)
-    ax.text(4.5, gn + 0.004, f"grad_norm {gn:.2f}", color="0.4", fontsize=7, va="bottom", ha="left", clip_on=False)
-    ax.text(4.5, 0.255, "fisher, grasp, plain < 0.1\n(below axis)", color="0.5", fontsize=6.5,
+    ax.text(len(BUDGETS) - 0.5, gn + 0.004, f"grad_norm {gn:.2f}", color="0.4", fontsize=7, va="bottom", ha="left", clip_on=False)
+    ax.text(len(BUDGETS) - 0.5, 0.255, "fisher, grasp, plain < 0.1\n(below axis)", color="0.5", fontsize=6.5,
             va="bottom", ha="left", clip_on=False, linespacing=1.1)
     ax.plot(xpos, ms, color=CURVE, marker="o", ms=4.5, lw=1.6, zorder=5)  # seed intervals reported in text
     ax.set_xticks(xpos)
     ax.set_xticklabels([str(b) for b in BUDGETS])
-    ax.set_xlim(-0.35, 4.35)
+    ax.set_xlim(-0.35, len(BUDGETS) - 0.65)
     ax.set_ylim(0.25, 1.0)
     ax.set_yticks([0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
     ax.set_xlabel("in-domain budget $N$ (trained speech models; $N{=}0$: vision only)")
@@ -127,7 +129,7 @@ def main(png=None, single=False):
     ax.annotate("50 models recover\nmost of the gap", (2, ms[2]), xytext=(2.35, ms[2] - 0.22), color=CURVE,
                 fontsize=8.5, arrowprops={"arrowstyle": "-|>", "color": CURVE, "lw": 1})
     ax.set_xticks(xpos); ax.set_xticklabels([str(b) for b in BUDGETS])
-    ax.set_xlim(-0.35, 4.35); ax.set_ylim(0.2, 1.0)
+    ax.set_xlim(-0.35, len(BUDGETS) - 0.65); ax.set_ylim(0.2, 1.0)
     ax.set_xlabel("speech ground-truth budget $N$"); ax.set_ylabel("Spearman $\\rho$ on Space B")
     ax.set_title("(a) evolved proxies vs. in-domain budget")
     for s in ("top", "right"):
