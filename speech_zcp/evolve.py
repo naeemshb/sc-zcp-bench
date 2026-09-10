@@ -16,6 +16,9 @@ Usage:
   .venv/bin/python -m speech_zcp.evolve --budget 0 --seed 1          # vision
   .venv/bin/python -m speech_zcp.evolve --budget 25 --seed 1 \
       --warm-start results/evolved/nb201_N0_s1.json                  # ablation
+  # 9d-search-scale (2026-09-10): larger search, fitting side only, separate dir
+  .venv/bin/python -m speech_zcp.evolve --budget 200 --seed 1 \
+      --population 100 --generations 30 --out-dir speech_zcp/results/evolved_bigsearch --tag-suffix _big
 """
 
 import argparse
@@ -176,8 +179,17 @@ def main():
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--warm-start", default=None,
                     help="path to an N=0 elite json to seed the population (ablation)")
+    ap.add_argument("--population", type=int, default=None, help="9d: override CONFIG population")
+    ap.add_argument("--generations", type=int, default=None, help="9d: override CONFIG generations")
+    ap.add_argument("--out-dir", default=None, help="9d: write elites here instead of results/evolved")
+    ap.add_argument("--tag-suffix", default="", help="9d: appended to the artifact tag")
     args = ap.parse_args()
-    os.makedirs(RESULTS_DIR, exist_ok=True)
+    if args.population or args.generations:  # non-default search scale: mark the config
+        CONFIG["population"] = args.population or CONFIG["population"]
+        CONFIG["generations"] = args.generations or CONFIG["generations"]
+        CONFIG["version"] = "evolve-v1-scale"
+    out_dir = args.out_dir or RESULTS_DIR
+    os.makedirs(out_dir, exist_ok=True)
 
     if args.budget == 0:
         index = json.load(open(os.path.join(CACHE_DIR, "nb201_index.json")))
@@ -218,6 +230,7 @@ def main():
     else:
         ctxs_fit, accs_fit, ctxs_sel, accs_sel = ctxs, accs, ctxs, accs
 
+    tag += args.tag_suffix
     warm_trees = None
     if args.warm_start:
         ws = json.load(open(args.warm_start))
@@ -240,7 +253,7 @@ def main():
         "git_hash": git_hash(),
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
-    path = os.path.join(RESULTS_DIR, f"{tag}.json")
+    path = os.path.join(out_dir, f"{tag}.json")
     json.dump(out, open(path, "w"), indent=1)
     print(f"[{tag}] best: {tree}")
     print(f"[{tag}] sel_fitness={sel_fit:.4f} fit_rho={fit_rho:.4f} "
