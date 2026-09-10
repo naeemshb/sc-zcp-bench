@@ -1,0 +1,421 @@
+{
+ "protocol": "PROTOCOL.md 9d-search-scale; fitting side only; no sealed set read",
+ "committed_30x15": {
+  "n": 10,
+  "weight_only_size_proxies": 7,
+  "using_speech_terminals": 3,
+  "distinct_formulas": 5,
+  "modal_formula": [
+   "asum(rl1(W))",
+   6
+  ],
+  "fit_rho_mean": 0.8075265935665212,
+  "fit_rho_sd": 0.05940563680224416,
+  "selection_fitness_mean": 0.821780093694521,
+  "found_at_gen_median": 3.0,
+  "generations": 15,
+  "population": 30
+ },
+ "bigsearch_100x30": {
+  "n": 10,
+  "weight_only_size_proxies": 7,
+  "using_speech_terminals": 3,
+  "distinct_formulas": 4,
+  "modal_formula": [
+   "asum(rl1(W))",
+   5
+  ],
+  "fit_rho_mean": 0.8322407339548544,
+  "fit_rho_sd": 0.014662514997635897,
+  "selection_fitness_mean": 0.8268138093571894,
+  "found_at_gen_median": 3.0,
+  "generations": 30,
+  "population": 100
+ },
+ "per_seed_committed": [
+  {
+   "seed": 1,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8070518022973628,
+   "selection_fitness": 0.8951257035647281,
+   "found_at_gen": 2,
+   "nodes": null,
+   "config": {
+    "population": 30,
+    "generations": 15,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 10,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8124643385925431,
+   "selection_fitness": 0.8534746716697936,
+   "found_at_gen": 3,
+   "nodes": null,
+   "config": {
+    "population": 30,
+    "generations": 15,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 2,
+   "tree": "asum(rl2(log(W)))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8301545993541922,
+   "selection_fitness": 0.8749682452604945,
+   "found_at_gen": 9,
+   "nodes": null,
+   "config": {
+    "population": 30,
+    "generations": 15,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 3,
+   "tree": "asum(rl2(sign(Gn)))",
+   "terminals": [
+    "Gn"
+   ],
+   "weight_only": false,
+   "uses_speech_terminal": true,
+   "fit_rho": 0.8496747154262375,
+   "selection_fitness": 0.7601050656660413,
+   "found_at_gen": 1,
+   "nodes": null,
+   "config": {
+    "population": 30,
+    "generations": 15,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 4,
+   "tree": "amax(rl2((Gn + log(W))))",
+   "terminals": [
+    "Gn",
+    "W"
+   ],
+   "weight_only": false,
+   "uses_speech_terminal": true,
+   "fit_rho": 0.6346491620058444,
+   "selection_fitness": 0.8063310670853479,
+   "found_at_gen": 0,
+   "nodes": null,
+   "config": {
+    "population": 30,
+    "generations": 15,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 5,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8452532065220614,
+   "selection_fitness": 0.6950976670313906,
+   "found_at_gen": 2,
+   "nodes": null,
+   "config": {
+    "population": 30,
+    "generations": 15,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 6,
+   "tree": "asum(rsum((relu(Gn) * (Gn / square(Gn)))))",
+   "terminals": [
+    "Gn"
+   ],
+   "weight_only": false,
+   "uses_speech_terminal": true,
+   "fit_rho": 0.8121036509965815,
+   "selection_fitness": 0.8584951461399066,
+   "found_at_gen": 3,
+   "nodes": null,
+   "config": {
+    "population": 30,
+    "generations": 15,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 7,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8118991586317725,
+   "selection_fitness": 0.8818881735293832,
+   "found_at_gen": 5,
+   "nodes": null,
+   "config": {
+    "population": 30,
+    "generations": 15,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 8,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8344447113915772,
+   "selection_fitness": 0.79962851782364,
+   "found_at_gen": 3,
+   "nodes": null,
+   "config": {
+    "population": 30,
+    "generations": 15,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 9,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8375705904470409,
+   "selection_fitness": 0.7926866791744842,
+   "found_at_gen": 3,
+   "nodes": null,
+   "config": {
+    "population": 30,
+    "generations": 15,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  }
+ ],
+ "per_seed_big": [
+  {
+   "seed": 10,
+   "tree": "asum(rl2(relu(sign(Gn))))",
+   "terminals": [
+    "Gn"
+   ],
+   "weight_only": false,
+   "uses_speech_terminal": true,
+   "fit_rho": 0.8173169888631399,
+   "selection_fitness": 0.8802439024390245,
+   "found_at_gen": 1,
+   "nodes": null,
+   "config": {
+    "population": 100,
+    "generations": 30,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 1,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8070518022973628,
+   "selection_fitness": 0.8951257035647281,
+   "found_at_gen": 2,
+   "nodes": null,
+   "config": {
+    "population": 100,
+    "generations": 30,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 2,
+   "tree": "asum(rl2(log(W)))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8301545993541922,
+   "selection_fitness": 0.8749682452604945,
+   "found_at_gen": 16,
+   "nodes": null,
+   "config": {
+    "population": 100,
+    "generations": 30,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 3,
+   "tree": "asum(rl2(sign(Gn)))",
+   "terminals": [
+    "Gn"
+   ],
+   "weight_only": false,
+   "uses_speech_terminal": true,
+   "fit_rho": 0.8496747154262375,
+   "selection_fitness": 0.7601050656660413,
+   "found_at_gen": 2,
+   "nodes": null,
+   "config": {
+    "population": 100,
+    "generations": 30,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 4,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8324729431240645,
+   "selection_fitness": 0.8429141151043579,
+   "found_at_gen": 7,
+   "nodes": null,
+   "config": {
+    "population": 100,
+    "generations": 30,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 5,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8452532065220614,
+   "selection_fitness": 0.6950976670313906,
+   "found_at_gen": 3,
+   "nodes": null,
+   "config": {
+    "population": 100,
+    "generations": 30,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 6,
+   "tree": "asum(rl2(log(W)))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8422769658578991,
+   "selection_fitness": 0.8260916562485187,
+   "found_at_gen": 3,
+   "nodes": null,
+   "config": {
+    "population": 100,
+    "generations": 30,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 7,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8118991586317725,
+   "selection_fitness": 0.8818881735293832,
+   "found_at_gen": 0,
+   "nodes": null,
+   "config": {
+    "population": 100,
+    "generations": 30,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 8,
+   "tree": "asum(rl2(sign(Gn)))",
+   "terminals": [
+    "Gn"
+   ],
+   "weight_only": false,
+   "uses_speech_terminal": true,
+   "fit_rho": 0.8487363690247729,
+   "selection_fitness": 0.819016885553471,
+   "found_at_gen": 5,
+   "nodes": null,
+   "config": {
+    "population": 100,
+    "generations": 30,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  },
+  {
+   "seed": 9,
+   "tree": "asum(rl1(W))",
+   "terminals": [
+    "W"
+   ],
+   "weight_only": true,
+   "uses_speech_terminal": false,
+   "fit_rho": 0.8375705904470409,
+   "selection_fitness": 0.7926866791744842,
+   "found_at_gen": 3,
+   "nodes": null,
+   "config": {
+    "population": 100,
+    "generations": 30,
+    "max_depth": 6,
+    "complexity_lambda": 0.002
+   }
+  }
+ ],
+ "pinned_reading": "(a) size attractor is search-scale-robust: >=6/10 big-search elites are weight-only size proxies"
+}
