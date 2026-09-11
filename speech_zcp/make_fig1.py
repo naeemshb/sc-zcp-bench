@@ -96,7 +96,40 @@ def _single_panel(ev, nc, png=None):
     print(f"ceiling {nc['spearman']:.4f}  curve means {[round(m, 3) for m in ms]}  half-widths {[round(h, 3) for h in hs]}")
 
 
-def main(png=None, single=False):
+def _scatter_panel(bx, ev, gt, titled=True):
+    """Space B: test accuracy vs MACs, colored by FLOPs tercile (the terciles of Table 2)."""
+    flops = np.array([g["flops"] for g in gt]); acc = np.array([g["test_acc"] for g in gt]) * 100
+    terc = np.percentile(flops, [33.3, 66.7])
+    tier = np.digitize(flops, terc)
+    for t in range(3):
+        m = tier == t
+        bx.scatter(flops[m], acc[m], s=14, color=TERC_COLORS[t], alpha=0.9, lw=0)
+    for x, lab in zip(terc, ["T1 | T2", "T2 | T3"]):
+        bx.axvline(x, color="0.6", ls=":", lw=1)
+        bx.text(x, 96.5, lab, color="0.5", ha="center", va="bottom", fontsize=8)
+    bx.set_xscale("log")
+    f = ev["standard"]["flops"]["B"]
+    bx.text(0.03, 0.04, f"$\\rho$(FLOPs, acc) = {f['spearman']:.3f} [{f['ci95'][0]:.3f}, {f['ci95'][1]:.3f}]",
+            transform=bx.transAxes, color=REFS[0][2], fontsize=8.5)
+    bx.set_ylim(min(acc) - 2, 98)
+    bx.set_xlabel("MACs (log scale)"); bx.set_ylabel("test accuracy (%)")
+    if titled:
+        bx.set_title("(b) Space B: compute nearly orders the space")
+    for s in ("top", "right"):
+        bx.spines[s].set_visible(False)
+
+
+def _scatter_only(ev, gt, png=None):
+    """Companion to fig1_curve: panel (b) alone, no title -> fig1_scatter.pdf."""
+    fig, bx = plt.subplots(1, 1, figsize=(3.6, 2.7))
+    _scatter_panel(bx, ev, gt, titled=False)
+    for out in (os.path.join(ROOT, "fig1_scatter.pdf"), os.path.join(HERE, "figures", "fig1_scatter.pdf")):
+        fig.savefig(out, bbox_inches="tight"); print("wrote", out)
+    if png:
+        fig.savefig(png, dpi=200, bbox_inches="tight"); print("wrote", png)
+
+
+def main(png=None, single=False, scatter=False):
     """single=True: panel (a) only -> fig1_curve.pdf (page-budget variant; same data, same code)."""
     ev = json.load(open(os.path.join(RES, "evaluation.json")))
     nc = json.load(open(os.path.join(RES, "noise_ceiling.json")))["B"]
@@ -106,6 +139,9 @@ def main(png=None, single=False):
                          "xtick.labelsize": 8.5, "ytick.labelsize": 8.5, "pdf.fonttype": 42})
     if single:
         return _single_panel(ev, nc, png)
+    if scatter:
+        return _scatter_only(ev, gt, png)
+    fig, (ax, bx) = plt.subplots(2, 1, figsize=(3.6, 5.4), gridspec_kw={"hspace": 0.55})
     # ---- (a) learning curve -------------------------------------------------
     ms, hs = seed_curve(ev)
     xpos = np.arange(len(BUDGETS))
@@ -136,24 +172,7 @@ def main(png=None, single=False):
         ax.spines[s].set_visible(False)
 
     # ---- (b) compute orders the space ---------------------------------------
-    flops = np.array([g["flops"] for g in gt]); acc = np.array([g["test_acc"] for g in gt]) * 100
-    terc = np.percentile(flops, [33.3, 66.7])
-    tier = np.digitize(flops, terc)
-    for t in range(3):
-        m = tier == t
-        bx.scatter(flops[m], acc[m], s=14, color=TERC_COLORS[t], alpha=0.9, lw=0)
-    for x, lab in zip(terc, ["T1 | T2", "T2 | T3"]):
-        bx.axvline(x, color="0.6", ls=":", lw=1)
-        bx.text(x, bx.get_ylim()[1] if False else 96.5, lab, color="0.5", ha="center", va="bottom", fontsize=8)
-    bx.set_xscale("log")
-    f = ev["standard"]["flops"]["B"]
-    bx.text(0.03, 0.04, f"$\\rho$(FLOPs, acc) = {f['spearman']:.3f} [{f['ci95'][0]:.3f}, {f['ci95'][1]:.3f}]",
-            transform=bx.transAxes, color=REFS[0][2], fontsize=8.5)
-    bx.set_ylim(min(acc) - 2, 98)
-    bx.set_xlabel("MACs (log scale)"); bx.set_ylabel("test accuracy (%)")
-    bx.set_title("(b) Space B: compute nearly orders the space")
-    for s in ("top", "right"):
-        bx.spines[s].set_visible(False)
+    _scatter_panel(bx, ev, gt, titled=True)
 
     for out in (os.path.join(ROOT, "fig1_curve_scatter.pdf"), os.path.join(HERE, "figures", "fig1_curve_scatter.pdf")):
         fig.savefig(out, bbox_inches="tight")
@@ -167,5 +186,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--png", default=None)
     ap.add_argument("--single", action="store_true", help="panel (a) only -> fig1_curve.pdf")
+    ap.add_argument("--scatter", action="store_true", help="panel (b) only, no title -> fig1_scatter.pdf")
     a = ap.parse_args()
-    main(a.png, a.single)
+    main(a.png, a.single, a.scatter)
