@@ -1,0 +1,42 @@
+{
+ "protocol": {
+  "device": "cpu",
+  "threads": 4,
+  "batch": 8,
+  "n_archs_per_space": 20,
+  "machine": "macOS-26.5.2-arm64-arm-64bit",
+  "note": "median seconds per architecture; builder() includes model construction"
+ },
+ "A": {
+  "params (build + count)": 0.0007374789999516906,
+  "flops (build + hooked forward, batch 1)": 0.002958979000027284,
+  "proxy l2_norm": 0.000761958499992943,
+  "proxy plain": 0.0213629375000437,
+  "proxy grad_norm": 0.020853020999993532,
+  "proxy snip": 0.023553687499997977,
+  "proxy grasp": 0.07114072950002992,
+  "proxy fisher": 0.02586266649996105,
+  "proxy synflow": 0.008830271000022094,
+  "proxy nwot": 0.014141937999966103,
+  "proxy zen": 0.018379083500008164,
+  "evolved: statistics extraction (real + noise batch)": 0.04984370849996367,
+  "evolved: formula eval asum(rl1(W)) on cached stats": 1.4104500053235824e-05,
+  "evolved: formula eval Gn-formula on cached stats": 6.92085000082443e-05
+ },
+ "B": {
+  "params (build + count)": 0.0009485004999874036,
+  "flops (build + hooked forward, batch 1)": 0.0017643749999933789,
+  "proxy l2_norm": 0.0009961245000340568,
+  "proxy plain": 0.005085166500066407,
+  "proxy grad_norm": 0.004526291999980003,
+  "proxy snip": 0.00464920849998407,
+  "proxy grasp": 0.01463050000000976,
+  "proxy fisher": 0.004576146000033532,
+  "proxy synflow": 0.0028641665000463945,
+  "proxy nwot": 0.0028563125000573564,
+  "proxy zen": 0.005007207999994989,
+  "evolved: statistics extraction (real + noise batch)": 0.008971229499991296,
+  "evolved: formula eval asum(rl1(W)) on cached stats": 3.0270999957338063e-05,
+  "evolved: formula eval Gn-formula on cached stats": 0.0003042079999886482
+ }
+}
