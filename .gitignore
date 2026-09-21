@@ -7,9 +7,5 @@ speech_zcp/cache/*
 !speech_zcp/cache/.gitkeep
 speech_zcp/logs/*
 !speech_zcp/logs/.gitkeep
-main.pdf
-main.aux
-main.bbl
-main.blg
-main.log
-main.out
+speech_zcp/figures/*
+!speech_zcp/figures/.gitkeep

@@ -1,9 +1,9 @@
 """Per-architecture compute cost of every ranker family (2026-09-14), measured on the laptop CPU.
 Timing only: reads architecture configs (never accuracies), computes nothing that enters a result.
-Writes exploratory/cost/ranker_cost.{json,md}. Nothing under speech_zcp/ is touched."""
+Writes results/ranker_cost.json (results/ranker_cost.md summarises it)."""
 import json, glob, os, sys, time, platform
 import numpy as np, torch
-REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")); sys.path.insert(0, REPO)
+REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..")); sys.path.insert(0, REPO)
 from speech_zcp import spaces, gp_engine as gp
 from speech_zcp.proxies import ALL_PROXIES, compute_proxy, params_count, flops_count
 from speech_zcp.cache_stats import fixed_speech_batch, matched_noise_batch, extract_speech, load_arch, CACHE_DIR
@@ -59,5 +59,5 @@ for sp, lst in sample.items():
         res[name] = med(t)
     out[sp] = res
     print(f"== Space {sp} (median s/arch, CPU 4 threads) =="); [print(f"  {k:55s} {v:9.4f}") for k, v in res.items()]
-json.dump(out, open(os.path.join(os.path.dirname(__file__), "ranker_cost.json"), "w"), indent=1)
+json.dump(out, open(os.path.join(R, "ranker_cost.json"), "w"), indent=1)
 print("saved")

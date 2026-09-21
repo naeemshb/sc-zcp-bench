@@ -1,7 +1,7 @@
 # Cost of the rankers vs. zero-cost proxies (2026-09-14)
 
 Measured on the M3 Pro laptop. Proxies and statistics: CPU, 4 threads, 20 architectures per space, median
-seconds per architecture (exploratory/cost/ranker_cost.json). Training: wall-clock recorded in every
+seconds per architecture (results/ranker_cost.json). Training: wall-clock recorded in every
 ground-truth file (speech_zcp/results/gt_*/*.json), frozen recipe pilot-v2 on the laptop GPU (MPS).
 
 | ranker family | what it needs per architecture | Space A (DS-CNN) | Space B (TC-ResNet) |
@@ -36,5 +36,4 @@ of magnitude more. What distinguishes the evolved proxies is an up-front cost th
 never pay: N trained specialization models (≈15 min at N=50, ≈1 h at N=200) plus a GP search of 7–26 s
 per seed.
 
-If these numbers go into the paper, commit exploratory/cost/ranker_cost.json first (rule 1: every
-number traces to a committed artifact); the training-time numbers already trace to the gt files.
+The training-time numbers trace to the ground-truth files; the millisecond figures to results/ranker_cost.json.

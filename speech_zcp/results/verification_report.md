@@ -1,6 +1,6 @@
 # Verification report (P0.2) — 2026-08-10
 
-Trust-but-verify pass over the Aug 4–5 experimental campaign, per FEEDBACK.md P0.2.
+Trust-but-verify pass over the Aug 4–5 experimental campaign, per review item P0.2.
 All three checks PASS. No stop-the-line events.
 
 ## 1. Holdout access audit
@@ -15,7 +15,7 @@ Rule (PROTOCOL.md hard rule 3): Space-B / A-test *correlations* are computed onc
 | `evolve.py:91` (`nested_chain`) | `gt_A` *_s0 files, filtered `if r["arch_id"] in flops` where keys = the 200-arch pool — FLOPs metadata only, pool only | sanctioned; **A-test never enters fitting** (split: `random.Random('Atest-2027').sample(range(250), 50)`, saved in `splits/`) |
 | `evaluate.py:135` | gt_A + gt_B accuracies | THE sanctioned one-time evaluation; ran once Aug 5 (commit 7378d37 → artifact in 595d729) |
 | `search_demo.py:45` | gt_B accuracies | sanctioned post-evaluation demo (PROTOCOL.md §7 specifies GT lookups); computes no correlations |
-| `analysis_terciles.py` | gt accuracies via `evaluate.gt_map` | post-evaluation re-analysis (FEEDBACK.md P0.1); no model/config selection |
+| `analysis_terciles.py` | gt accuracies via `evaluate.gt_map` | post-evaluation re-analysis (review item P0.1); no model/config selection |
 | `transfer_matrix.py` | `evaluation.json` only (frozen artifact) | re-presentation, no raw GT access |
 
 Interpretation: the holdout-correlation rule is intact. Readers beyond `evaluate.py`

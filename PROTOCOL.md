@@ -117,8 +117,8 @@ Evolution runs over cached tensors cost seconds per candidate; pop 30 × 15 gene
 
 **Search demo (compact block):** aging evolution over Space B using (i) evolved proxy, (ii) best standard proxy, (iii) #params, (iv) random — best-found ground-truth accuracy vs #queries, mean ± CI over ≥20 repetitions (pure lookups). Punchline sentence: best discovered model's accuracy@params, with search cost in CPU-minutes on commodity hardware, contextualized against ICASSP 2021/2022 training-based KWS-NAS (explicitly labeled different protocol/version — context, not baseline).
 
-**AMENDMENT (2026-08-10, per FEEDBACK.md P1.2) — protocol actually run:** aging evolution is not meaningful on a 200-arch tabular pool (mutations leave the trained set), so the demo is **proxy-rank-ordered querying**: architectures queried in descending proxy order, best-found ground-truth accuracy vs #queries; the random baseline is 1,000 shuffles with a 95% band (deterministic guides need no repetitions). Figure/caption language must match this amendment, not the original spec.
-**AMENDMENT (2026-08-10, per FEEDBACK.md P1.1) — `evolved_consensus` defined:** the modal N=200 elite formula `asum(rl1(W))` (independently reached by 6/10 cold seeds; artifact `results/evolved/A_N200_s1.json`). Selected by evolution's own convergence — no holdout data touched. Space-B Spearman 0.741 [bootstrap CI 0.663–0.803] (= the shared value of the six identical-formula seeds in evaluation.json). Any figure using it cites this definition; if Table 1 retains it, this is its row.
+**AMENDMENT (2026-08-10, per review item P1.2) — protocol actually run:** aging evolution is not meaningful on a 200-arch tabular pool (mutations leave the trained set), so the demo is **proxy-rank-ordered querying**: architectures queried in descending proxy order, best-found ground-truth accuracy vs #queries; the random baseline is 1,000 shuffles with a 95% band (deterministic guides need no repetitions). Figure/caption language must match this amendment, not the original spec.
+**AMENDMENT (2026-08-10, per review item P1.1) — `evolved_consensus` defined:** the modal N=200 elite formula `asum(rl1(W))` (independently reached by 6/10 cold seeds; artifact `results/evolved/A_N200_s1.json`). Selected by evolution's own convergence — no holdout data touched. Space-B Spearman 0.741 [bootstrap CI 0.663–0.803] (= the shared value of the six identical-formula seeds in evaluation.json). Any figure using it cites this definition; if Table 1 retains it, this is its row.
 
 **Bootstrap protocol:** percentile bootstrap over architectures, 10,000 resamples, for every correlation and P@k. Seeds and resample indices logged.
 
@@ -126,10 +126,10 @@ Evolution runs over cached tensors cost seconds per candidate; pop 30 × 15 gene
 
 ## 8. Verification to-dos (cheap, do before the corresponding paper sentences)
 
-- [x] NB-Suite-Zero task list: 28 tasks confirmed; NinaPro (sEMG, non-vision, NOT audio) on NB201 with precomputed scores + accuracies — free transfer-matrix column. Suite has zero audio tasks (motivation). *(2026-08-04, see RELATED_WORK_NOTES.md)*
+- [x] NB-Suite-Zero task list: 28 tasks confirmed; NinaPro (sEMG, non-vision, NOT audio) on NB201 with precomputed scores + accuracies — free transfer-matrix column. Suite has zero audio tasks (motivation). *(2026-08-04)*
 - [x] GreenMachine + GreenFactory: vision-only confirmed (NATS-Bench, CIFAR/ImageNet16); both arXiv-only, cite as preprints. *(2026-08-04)*
 - [x] EZNAS: NB201 + NDS-DARTS evolution, NB201/NDS/NATS eval — vision-only confirmed. *(2026-08-04)*
-- [x] Literature pass done: blanket "no ZC-NAS for speech" is FALSE — Abdelfattah ICLR'21 and **ProxyBO (AAAI 2023)** both evaluated on NB-ASR. Use the qualified phrasing in RELATED_WORK_NOTES.md; add ProxyBO to references. *(2026-08-04)*
+- [x] Literature pass done: blanket "no ZC-NAS for speech" is FALSE — Abdelfattah ICLR'21 and **ProxyBO (AAAI 2023)** both evaluated on NB-ASR. Use qualified phrasing; add ProxyBO to references. *(2026-08-04)*
 - [x] Licenses: zero-cost-nas (via mohsaied mirror; original 404) and NASLib both Apache-2.0; attribute in code headers, keep notices. *(2026-08-04)*
 - [ ] SC v2 12-class vs 35-class conventions; report exact split protocol in the paper. *(frozen protocol implemented in data_sc.py; write-up pending)*
 - [x] NB-ASR recovery re-check: still unavailable as of 2026-08-04 (repo deleted, mirrors code-only/empty, nothing on HF).

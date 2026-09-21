@@ -1,7 +1,7 @@
-"""Fig. 1(a) VARIANT 9 (2026-09-12): single continuous y-axis (no break), no legend, no grid, no dots.
-Curve = mean ± 1 s.d. over 10 seeds at N = 0..300; strong references with margin CI whiskers; zen/l2/snip/synflow grey
-dotted; grad_norm/fisher/grasp/plain bronze dotted. Data read-only from speech_zcp/results; writes only
-exploratory/fig1_variant/fig1_curve_v9.{pdf,png}."""
+"""Fig. 1(a) of the paper: the specialization learning curve on sealed Space B.
+Curve = mean +- 1 s.d. over 10 seeds at N = 0..300; fixed rankers and the noise ceiling as labeled lines with
+their 10k-bootstrap 95% CIs as right-margin whiskers; every fixed proxy shown. Reads speech_zcp/results/
+{evaluation,n300,noise_ceiling}.json; writes fig1_curve.pdf at the repository root."""
 import json, os
 import matplotlib
 matplotlib.use("Agg")
@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
+REPO = os.path.abspath(os.path.join(HERE, ".."))
 RES = os.path.join(REPO, "speech_zcp", "results")
 BUDGETS = [0, 25, 50, 100, 200, 300]
 CURVE, MID, MIDTXT, WEAK = "#1f6fb4", "0.72", "0.5", "#a6761d"
@@ -68,7 +68,6 @@ ax.set_xlabel("in-domain budget $N$ (trained speech models)")
 ax.set_ylabel("Spearman $\\rho$, sealed Space B")
 for sp in ("top", "right"):
     ax.spines[sp].set_visible(False)
-for ext in ("pdf", "png"):
-    out = os.path.join(HERE, f"fig1_curve_v9.{ext}")
-    fig.savefig(out, bbox_inches="tight", **({"dpi": 220} if ext == "png" else {})); print("wrote", out)
+out = os.path.join(REPO, "fig1_curve.pdf")
+fig.savefig(out, bbox_inches="tight"); print("wrote", out)
 print("means", [round(m, 3) for m in ms], "sd", [round(s, 3) for s in sds])
