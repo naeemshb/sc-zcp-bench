@@ -82,6 +82,9 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 Every number in the paper traces to a JSON/CSV artifact in `speech_zcp/results/`
 produced by these scripts (config + git hash + timestamp embedded).
+The `git_hash` values embedded in the artifacts refer to the repository's pre-release history;
+`COMMIT_HASH_MAP.txt` maps each of them to the corresponding current commit. The pre-registration
+log is `PROTOCOL.md`: every protocol decision and its outcome, with the date it was committed.
 
 ## Proxy-suite validation
 
