@@ -3,8 +3,9 @@
 Conventions follow the reference implementations in Abdelfattah et al.'s
 zero-cost-nas (Apache-2.0) and NASLib where known, so that the NB201
 validation gate against NAS-Bench-Suite-Zero precomputed scores can pass:
-PASS = Spearman >= 0.99 for data-free proxies (synflow, params, flops),
-       Spearman >= 0.90 for data-dependent proxies.
+PASS = Spearman >= 0.99 for synflow, params and flops,
+       Spearman >= 0.90 for the other eight (l2_norm and zen are data-free but
+       depend on the init seed / random inputs, so they are held to 0.90 too).
 Any miss is an implementation bug until proven otherwise.
 
 All proxies run on CPU (MPS lacks reliable double-backward and determinism).

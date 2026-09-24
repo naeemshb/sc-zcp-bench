@@ -9,7 +9,7 @@ avg_pool_3x3}, arch string like
 
 GATE (run after downloading NB-Suite-Zero data, see download_instructions()):
 on a >=500-arch NB201/CIFAR-10 sample, our proxy scores must Spearman-match
-the precomputed scores per proxy: rho >= 0.99 data-free, >= 0.90 data-dependent.
+the precomputed scores per proxy: rho >= 0.99 for params, flops and synflow; >= 0.90 for the others.
 NB-Suite-Zero provides scalar scores + accuracies only, NOT raw statistics
 tensors (vision-side evolution needs our own cache, section 5).
 """

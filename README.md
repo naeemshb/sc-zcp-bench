@@ -54,7 +54,9 @@ validation and test accuracy, #params, FLOPs, wall-clock, git hash and timestamp
 is `results/evaluation.json`; the replications `replication.json` and `replication2.json`; the noise
 ceilings `noise_ceiling.json`; the partial correlations `partial_flops.json`; the N = 300 elites
 `n300.json`. The other artifacts are named after their experiment (`recipe_check`, `search_scale`,
-`terciles`, `transfer_matrix`, `search_demo`, `nb201_gate`, `batch_sensitivity`, `ranker_cost`).
+`terciles`, `transfer_matrix`, `search_demo`, `nb201_gate`, `batch_sensitivity`, `ranker_cost`,
+`striding_check`). `exploratory_n100/` holds a post-hoc N = 100 search-setting variant that was scored
+once and is not part of the paper's tables (its README explains).
 
 ## Reproducing
 

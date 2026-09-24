@@ -1,0 +1,474 @@
+{
+ "summary": {
+  "exploratory": {
+   "fit_rho": {
+    "mean": 0.7734920032180815,
+    "sd": 0.0820085624453846,
+    "median": 0.7728290299291958,
+    "min": 0.5862503443887342,
+    "max": 0.8785030298057875,
+    "n": 25
+   },
+   "sel_rho": {
+    "mean": 0.801863428556543,
+    "sd": 0.08289711018767662,
+    "median": 0.7894736842105263,
+    "min": 0.6360902255639098,
+    "max": 0.9864661654135337,
+    "n": 25
+   },
+   "hold_rho": {
+    "mean": 0.7551983242026478,
+    "sd": 0.11011162202216634,
+    "median": 0.8064939078686241,
+    "min": 0.49298529852985296,
+    "max": 0.8720435174579212,
+    "n": 25
+   },
+   "known_B_subset": {
+    "mean": 0.6927557597974957,
+    "sd": 0.11864767317836222,
+    "median": 0.7408076185295039,
+    "min": 0.23110062741236856,
+    "max": 0.7408076185295039,
+    "n": 20,
+    "n_unknown": 5
+   }
+  },
+  "committed_N100": {
+   "fit_rho": {
+    "mean": 0.7941986804272296,
+    "sd": 0.07952497707225123,
+    "median": 0.8252768592094569,
+    "min": 0.6548013924663602,
+    "max": 0.872525463321339,
+    "n": 10
+   },
+   "sel_rho": {
+    "mean": 0.7615532106594073,
+    "sd": 0.10747462888232605,
+    "median": 0.7599230585449662,
+    "min": 0.5924812030075187,
+    "max": 0.9033471868619661,
+    "n": 10
+   },
+   "hold_rho": {
+    "mean": 0.7872084634390294,
+    "sd": 0.1016551607086597,
+    "median": 0.8253096489532865,
+    "min": 0.5207954539479446,
+    "max": 0.8643042091938101,
+    "n": 10
+   },
+   "B_sealed": {
+    "mean": 0.6690930478181059,
+    "sd": 0.17679013200086627,
+    "median": 0.7252658485457699,
+    "min": 0.14182205060641118,
+    "max": 0.7527427711154495,
+    "n": 10
+   }
+  }
+ },
+ "runs": [
+  {
+   "seed": 1,
+   "tree": "asum(rl2(AstdT))",
+   "terminals_used": [
+    "AstdT"
+   ],
+   "found_at_gen": 3,
+   "fit_rho": 0.739678502582454,
+   "sel_rho": 0.7333584572776161,
+   "hold_rho": 0.6758417494359327
+  },
+  {
+   "seed": 2,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 4,
+   "fit_rho": 0.7701260571875359,
+   "sel_rho": 0.8360902255639097,
+   "hold_rho": 0.8545291437112766
+  },
+  {
+   "seed": 3,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 5,
+   "fit_rho": 0.8348081904955788,
+   "sel_rho": 0.7371192698790398,
+   "hold_rho": 0.8284358142112197
+  },
+  {
+   "seed": 4,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.8749633728141165,
+   "sel_rho": 0.7172932330827068,
+   "hold_rho": 0.8207369981365773
+  },
+  {
+   "seed": 5,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.859058357517486,
+   "sel_rho": 0.7999999999999999,
+   "hold_rho": 0.8064939078686241
+  },
+  {
+   "seed": 6,
+   "tree": "amax(rmean(AstdT))",
+   "terminals_used": [
+    "AstdT"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.5933661509610877,
+   "sel_rho": 0.7774436090225564,
+   "hold_rho": 0.6012913446739013
+  },
+  {
+   "seed": 7,
+   "tree": "amean(rmean(AstdT))",
+   "terminals_used": [
+    "AstdT"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.6345991561181435,
+   "sel_rho": 0.7338345864661654,
+   "hold_rho": 0.6804402093156926
+  },
+  {
+   "seed": 8,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 4,
+   "fit_rho": 0.872525463321339,
+   "sel_rho": 0.7293233082706766,
+   "hold_rho": 0.8094990924284177
+  },
+  {
+   "seed": 9,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 6,
+   "fit_rho": 0.8576267612942666,
+   "sel_rho": 0.8341482349957706,
+   "hold_rho": 0.7933224721816008
+  },
+  {
+   "seed": 10,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 1,
+   "fit_rho": 0.7196329050497723,
+   "sel_rho": 0.9003385367808272,
+   "hold_rho": 0.8699414335031952
+  },
+  {
+   "seed": 11,
+   "tree": "asum(rl1(AstdT))",
+   "terminals_used": [
+    "AstdT"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.6801533070475034,
+   "sel_rho": 0.8736842105263156,
+   "hold_rho": 0.49298529852985296
+  },
+  {
+   "seed": 12,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.8205371638134695,
+   "sel_rho": 0.8691729323308269,
+   "hold_rho": 0.818279192435658
+  },
+  {
+   "seed": 13,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 3,
+   "fit_rho": 0.810051806406491,
+   "sel_rho": 0.7744360902255639,
+   "hold_rho": 0.8357196006103129
+  },
+  {
+   "seed": 14,
+   "tree": "amax(rmean(AstdT))",
+   "terminals_used": [
+    "AstdT"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.5862503443887342,
+   "sel_rho": 0.7894736842105263,
+   "hold_rho": 0.5745163458721074
+  },
+  {
+   "seed": 15,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 4,
+   "fit_rho": 0.8375742800548529,
+   "sel_rho": 0.8917293233082706,
+   "hold_rho": 0.8045052775739053
+  },
+  {
+   "seed": 16,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 1,
+   "fit_rho": 0.7506373103581214,
+   "sel_rho": 0.8736842105263156,
+   "hold_rho": 0.8494465896820983
+  },
+  {
+   "seed": 17,
+   "tree": "asum(rl2(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 13,
+   "fit_rho": 0.8266064996076637,
+   "sel_rho": 0.6977443609022556,
+   "hold_rho": 0.6665206512010259
+  },
+  {
+   "seed": 18,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 3,
+   "fit_rho": 0.7728290299291958,
+   "sel_rho": 0.849624060150376,
+   "hold_rho": 0.8624148287312404
+  },
+  {
+   "seed": 19,
+   "tree": "amean(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.7325566403731876,
+   "sel_rho": 0.6360902255639098,
+   "hold_rho": 0.6360614225222376
+  },
+  {
+   "seed": 20,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.8334134249112154,
+   "sel_rho": 0.7122979067096435,
+   "hold_rho": 0.8477740374737774
+  },
+  {
+   "seed": 21,
+   "tree": "amean(rsum(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.7582925058929613,
+   "sel_rho": 0.7187969924812029,
+   "hold_rho": 0.5515037684319926
+  },
+  {
+   "seed": 22,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 3,
+   "fit_rho": 0.7288102815873463,
+   "sel_rho": 0.9112781954887217,
+   "hold_rho": 0.8720435174579212
+  },
+  {
+   "seed": 23,
+   "tree": "asum(rl2(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 0,
+   "fit_rho": 0.764612806109787,
+   "sel_rho": 0.77593984962406,
+   "hold_rho": 0.7434261850610808
+  },
+  {
+   "seed": 24,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 2,
+   "fit_rho": 0.8000867328239405,
+   "sel_rho": 0.8872180451127819,
+   "hold_rho": 0.8395795892247602
+  },
+  {
+   "seed": 25,
+   "tree": "asum(rl1(W))",
+   "terminals_used": [
+    "W"
+   ],
+   "found_at_gen": 3,
+   "fit_rho": 0.8785030298057875,
+   "sel_rho": 0.9864661654135337,
+   "hold_rho": 0.7446496347917837
+  }
+ ],
+ "committed_N100": [
+  {
+   "seed": 1,
+   "tree": "amax(rmean(log(neg(AstdT))))",
+   "fit_rho": 0.6617010179498174,
+   "sel_rho": 0.7280933196356231,
+   "hold_rho": 0.5207954539479446,
+   "gen": 0,
+   "class": "AstdT/AnstdT",
+   "B": 0.14182205060641118
+  },
+  {
+   "seed": 2,
+   "tree": "asum(rl2(sign(G)))",
+   "fit_rho": 0.782831390733807,
+   "sel_rho": 0.8902255639097743,
+   "hold_rho": 0.8643042091938101,
+   "gen": 4,
+   "class": "G/Gn",
+   "B": 0.7097240785620359
+  },
+  {
+   "seed": 3,
+   "tree": "asum(rl2(sign(Gn)))",
+   "fit_rho": 0.8359451002109606,
+   "sel_rho": 0.7905228088192559,
+   "hold_rho": 0.8471397968337144,
+   "gen": 1,
+   "class": "G/Gn",
+   "B": 0.7093948148975878
+  },
+  {
+   "seed": 4,
+   "tree": "amax(rl2((Gn + log(W))))",
+   "fit_rho": 0.6548013924663602,
+   "sel_rho": 0.6210526315789473,
+   "hold_rho": 0.6821283056126745,
+   "gen": 0,
+   "class": "G/Gn",
+   "B": 0.7504749547646029
+  },
+  {
+   "seed": 5,
+   "tree": "asum(rl1(W))",
+   "fit_rho": 0.859058357517486,
+   "sel_rho": 0.7999999999999999,
+   "hold_rho": 0.8064939078686241,
+   "gen": 2,
+   "class": "W-only",
+   "B": 0.7408076185295039
+  },
+  {
+   "seed": 6,
+   "tree": "asum(rl2((relu(Gn) * (Gn / square(Gn)))))",
+   "fit_rho": 0.8708391936240039,
+   "sel_rho": 0.5924812030075187,
+   "hold_rho": 0.853937641077291,
+   "gen": 0,
+   "class": "G/Gn",
+   "B": 0.705312817634274
+  },
+  {
+   "seed": 7,
+   "tree": "asum(rl1(W))",
+   "fit_rho": 0.8146086182079533,
+   "sel_rho": 0.6676691729323309,
+   "hold_rho": 0.8411202054781554,
+   "gen": 6,
+   "class": "W-only",
+   "B": 0.7408076185295039
+  },
+  {
+   "seed": 8,
+   "tree": "asum(rl1(W))",
+   "fit_rho": 0.872525463321339,
+   "sel_rho": 0.7293233082706766,
+   "hold_rho": 0.8094990924284177,
+   "gen": 9,
+   "class": "W-only",
+   "B": 0.7408076185295039
+  },
+  {
+   "seed": 9,
+   "tree": "asum(rl2(sign(W)))",
+   "fit_rho": 0.8570876019139173,
+   "sel_rho": 0.8928169115779798,
+   "hold_rho": 0.8015793721840355,
+   "gen": 2,
+   "class": "W-only",
+   "B": 0.6990361350121862
+  },
+  {
+   "seed": 10,
+   "tree": "asum(rl1(sign(W)))",
+   "fit_rho": 0.7325886683266517,
+   "sel_rho": 0.9033471868619661,
+   "hold_rho": 0.8450866497656269,
+   "gen": 4,
+   "class": "W-only",
+   "B": 0.7527427711154495
+  }
+ ],
+ "known_B_lookup": {
+  "asum(rl2(AstdT))": [
+   "sealed evolved artifact",
+   0.5863502552338586
+  ],
+  "asum(rl1(W))": [
+   "sealed evolved artifact",
+   0.7408076185295039
+  ],
+  "amax(rmean(AstdT))": null,
+  "amean(rmean(AstdT))": [
+   "sealed evolved artifact",
+   0.23110062741236856
+  ],
+  "asum(rl1(AstdT))": null,
+  "asum(rl2(W))": [
+   "= l2_norm standard proxy",
+   0.5923712084158124
+  ],
+  "amean(rl1(W))": null,
+  "amean(rsum(W))": null
+ }
+}

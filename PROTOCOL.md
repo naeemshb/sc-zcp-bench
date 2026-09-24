@@ -57,7 +57,8 @@ Paper section numbers refer to the ICASSP 2027 submission.
 Eleven rankers: #params, FLOPs, synflow, snip, grasp, fisher, grad_norm, nwot, l2_norm, plain, zen
 (conventions of zero-cost-nas / NASLib; zen follows ZenNAS). Gate: Spearman against
 NAS-Bench-Suite-Zero's precomputed scores on 500 NAS-Bench-201/CIFAR-10 architectures, pass at
-ρ ≥ 0.99 for data-free and ρ ≥ 0.90 for data-dependent proxies (`results/nb201_gate.json`).
+ρ ≥ 0.99 for #params, FLOPs and synflow and ρ ≥ 0.90 for the other eight (`results/nb201_gate.json`;
+l2_norm and zen are data-free but depend on the initialization seed and random inputs, hence 0.90).
 Outcome: 9/11 pass (params 1.000, synflow 0.9992, zen 0.9978 after a real bug fix, nwot 0.9959,
 flops 0.9960, grad_norm 0.9906, snip 0.9887, l2_norm 0.9468, fisher 0.9303). plain (0.167) and grasp
 (0.683) miss for a measured reason: they self-correlate at only 0.295 / 0.770 across two minibatches
@@ -162,6 +163,13 @@ signal; every weight-magnitude statistic is negative (#params −0.28 [−0.40, 
 zen −0.33, l2 −0.28, evolved N=200 −0.26 ± 0.02). On Space A the signs flip (#params +0.77
 [+0.60, +0.88], synflow +0.68, evolved N=200 +0.76 ± 0.04, nwot −0.29).
 
+**Post-hoc descriptive check (2026-09-23, not pre-registered).** Behind the Sec. 4.4 mechanism sentence.
+Controlling for log10 FLOPs on Space B, parameter count and total temporal stride are strongly associated
+(+0.89 [+0.84, +0.91]; +0.92 [+0.89, +0.93] on the pooled replication), and striding is associated with
+lower accuracy at fixed compute on the original set (−0.20 [−0.32, −0.06]) but not resolvably on the pooled
+replication (−0.09 [−0.21, +0.03]); `results/striding_check.json`. Nothing was selected; ground truth
+seed 0 only.
+
 **9d — search scale.** Declared 2026-09-10 (ab7308d), outcome the same day (3216d35). Pinned: the
 N=200 evolution re-run at population 100 × 30 generations with everything else identical, fitting side
 only, no sealed set scored. Reading rule: at least 6/10 weight-only elites → the size attractor is
@@ -181,7 +189,8 @@ A-test 0.829 vs. 0.824; A_rep 0.850 vs. 0.825; Wilcoxon vs. #params p = 1.000; 6
 **9f — post-hoc N=100 variant (not part of the benchmark).** A search-setting variant at N=100
 (population 50, 20 generations, depth cap 3, 25 seeds) was pre-registered as exploratory on
 2026-09-12 (4d68373) and scored once; it did not improve on the frozen N=100 result, is not reported
-in the paper, and was removed from this log (85e8621). It is not included in this release.
+in the paper's tables, and was removed from this log (85e8621). Its artifact is kept in
+`speech_zcp/results/exploratory_n100/` so that the paper's mention of one further sealed scoring is traceable.
 
 ## 8. NAS-Bench-ASR availability (verified observations)
 

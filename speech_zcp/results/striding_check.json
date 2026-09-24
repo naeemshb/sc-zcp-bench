@@ -1,0 +1,100 @@
+{
+ "statistic": "partial Spearman controlling for log10 FLOPs (rank residuals); stride = product of block strides",
+ "sets": {
+  "B": {
+   "params_vs_stride": {
+    "partial": 0.8914479904282151,
+    "ci95": [
+     0.8412180297623548,
+     0.914214807432249
+    ],
+    "n": 200
+   },
+   "stride_vs_acc": {
+    "partial": -0.19578618530333683,
+    "ci95": [
+     -0.3183747269661768,
+     -0.05536568053343573
+    ],
+    "n": 200
+   },
+   "params_vs_acc": {
+    "partial": -0.2846156296272432,
+    "ci95": [
+     -0.39688870078340555,
+     -0.1248158462024871
+    ],
+    "n": 200
+   },
+   "nblocks_vs_acc": {
+    "partial": -0.3244857281502036,
+    "ci95": [
+     -0.42543102619212075,
+     -0.20028118269912218
+    ],
+    "n": 200
+   },
+   "plain_spearman_stride_vs_acc": 0.00656798716703623,
+   "stride_values": {
+    "1": 22,
+    "2": 68,
+    "4": 48,
+    "8": 41,
+    "16": 13,
+    "32": 7,
+    "64": 1
+   }
+  },
+  "B_rep_pooled": {
+   "params_vs_stride": {
+    "partial": 0.922309272037423,
+    "ci95": [
+     0.8911276633239854,
+     0.9341808544975232
+    ],
+    "n": 300
+   },
+   "stride_vs_acc": {
+    "partial": -0.09259376371165895,
+    "ci95": [
+     -0.2126424809887838,
+     0.034400608222955556
+    ],
+    "n": 300
+   },
+   "params_vs_acc": {
+    "partial": -0.12952419291885048,
+    "ci95": [
+     -0.2581365957500779,
+     0.017596375427824634
+    ],
+    "n": 300
+   },
+   "nblocks_vs_acc": {
+    "partial": -0.27843595708843344,
+    "ci95": [
+     -0.37682053739951393,
+     -0.16881191654244546
+    ],
+    "n": 300
+   },
+   "plain_spearman_stride_vs_acc": 0.10139138800954274,
+   "stride_values": {
+    "1": 45,
+    "2": 84,
+    "4": 82,
+    "8": 55,
+    "16": 27,
+    "32": 7
+   }
+  }
+ },
+ "meta": {
+  "n_boot": 10000,
+  "boot_seed": 0,
+  "order": "sorted arch_id",
+  "git_hash": "1a69e3e6e0192a9f1f425ee60a2b7fec9928b581",
+  "timestamp": "2026-09-24T01:50:49.477872+00:00",
+  "note": "post-hoc descriptive check, not pre-registered; ground truth seed 0; nothing selected"
+ }
+}
