@@ -10,9 +10,12 @@ Paper section numbers refer to the ICASSP 2027 submission.
 
 1. **Every number traces to an artifact** in `speech_zcp/results/`, written by a script in this
    repository with the config, git hash and timestamp embedded.
-2. **Holdout sanctity.** Space B and the Space-A test set are touched by `evaluate.py` only, once per
-   pre-registered evaluation, after the corresponding configuration froze. Evolved proxies are fitted
-   on the Space-A specialization pool and model-selected on validation architectures only.
+2. **Holdout sanctity.** No model or proxy was selected using Space B or the Space-A test set. Their
+   sealed evaluations (every proxy and elite correlation in the paper) are computed by `evaluate.py`,
+   once per pre-registered configuration, after that configuration froze; the descriptive checks that
+   also read their ground truth (`search_demo`, `analysis_terciles`, `recipe_check`, `striding_check`)
+   select nothing. Evolved proxies are fitted on the Space-A specialization pool and model-selected on
+   validation architectures only.
 3. **CI-gated language.** "X outperforms Y" requires separated bootstrap CIs; overlapping intervals
    are ties.
 4. **Fixed recipes.** One frozen training recipe (`pilot-v2`) for all ground truth and one frozen
